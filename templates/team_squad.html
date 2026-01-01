@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== TEAM SQUAD PAGE ===== */
+.squad-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #00ffcc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.team-header-squad {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 100%);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.team-crest-squad {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+}
+
+.team-info-squad h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.team-info-squad p {
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.back-to-team {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #00ffcc;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.position-section {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.position-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00ffcc;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(0, 255, 204, 0.3);
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.player-card-squad {
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.player-card-squad:hover {
+    background: rgba(0,0,0,0.5);
+    transform: translateY(-3px);
+}
+
+.player-number-squad {
+    width: 45px;
+    height: 45px;
+    background: #00ffcc;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.player-info-squad {
+    flex: 1;
+}
+
+.player-name-squad {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.player-position-squad {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-bottom: 6px;
+}
+
+.player-nationality {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.squad-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card-squad {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.stat-value-squad {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #00ffcc;
+    margin-bottom: 10px;
+}
+
+.stat-label-squad {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.no-squad {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.6;
+}
+
+.no-squad i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Filter buttons */
+.squad-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.squad-filter {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.squad-filter.active {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    border-color: #00ffcc;
+}
+
+.squad-filter:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+}
+</style>
+
+<div class="squad-title">
+    <i class="bi bi-people"></i> Team Squad
+</div>
+
+<!-- Team Header -->
+<div class="team-header-squad">
+    {% if team.crest %}
+    <img src="{{ team.crest }}" alt="{{ team.name }}" class="team-crest-squad">
+    {% endif %}
+    
+    <div class="team-info-squad">
+        <h1>{{ team.name }}</h1>
+        {% if team.shortName %}
+        <p>{{ team.shortName }}</p>
+        {% endif %}
+        
+        <a href="/team/{{ team.id }}" class="back-to-team">
+            <i class="bi bi-arrow-left"></i> Back to Team Details
+        </a>
+    </div>
+</div>
+
+<!-- Squad Statistics -->
+{% if squad_by_position %}
+<div class="squad-stats">
+    <div class="stat-card-squad">
+        <div class="stat-value-squad">
+            {{ squad_by_position.Goalkeeper|length if squad_by_position.Goalkeeper else 0 }}
+        </div>
+        <div class="stat-label-squad">Goalkeepers</div>
+    </div>
+    
+    <div class="stat-card-squad">
+        <div class="stat-value-squad">
+            {{ squad_by_position.Defender|length if squad_by_position.Defender else 0 }}
+        </div>
+        <div class="stat-label-squad">Defenders</div>
+    </div>
+    
+    <div class="stat-card-squad">
+        <div class="stat-value-squad">
+            {{ squad_by_position.Midfielder|length if squad_by_position.Midfielder else 0 }}
+        </div>
+        <div class="stat-label-squad">Midfielders</div>
+    </div>
+    
+    <div class="stat-card-squad">
+        <div class="stat-value-squad">
+            {{ squad_by_position.Forward|length if squad_by_position.Forward else 0 }}
+        </div>
+        <div class="stat-label-squad">Forwards</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Position Filters -->
+<div class="squad-filters">
+    <div class="squad-filter active" onclick="filterByPosition('all')">All Players</div>
+    <div class="squad-filter" onclick="filterByPosition('Goalkeeper')">Goalkeepers</div>
+    <div class="squad-filter" onclick="filterByPosition('Defender')">Defenders</div>
+    <div class="squad-filter" onclick="filterByPosition('Midfielder')">Midfielders</div>
+    <div class="squad-filter" onclick="filterByPosition('Forward')">Forwards</div>
+</div>
+
+<!-- Squad by Position -->
+{% if squad_by_position %}
+    {% for position, players in squad_by_position.items() %}
+    {% if players %}
+    <div class="position-section" id="{{ position }}-section">
+        <h2 class="position-title">
+            <i class="bi bi-{% if position == 'Goalkeeper' %}shield{% elif position == 'Defender' %}shield-shaded{% elif position == 'Midfielder' %}circle{% else %}star{% endif %}"></i>
+            {{ position }}s ({{ players|length }})
+        </h2>
+        
+        <div class="players-grid" id="{{ position }}-players">
+            {% for player in players %}
+            <div class="player-card-squad" onclick="window.location.href='/player/{{ player.id }}'" data-position="{{ position }}">
+                <div class="player-number-squad">
+                    {{ player.shirtNumber if player.shirtNumber else '?' }}
+                </div>
+                
+                <div class="player-info-squad">
+                    <div class="player-name-squad">{{ player.name }}</div>
+                    <div class="player-position-squad">{{ player.position|get_position }}</div>
+                    
+                    {% if player.nationality %}
+                    <div class="player-nationality">
+                        <i class="bi bi-flag"></i>
+                        {{ player.nationality }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+{% else %}
+<div class="no-squad">
+    <i class="bi bi-people"></i>
+    <div>No squad data available for this team</div>
+</div>
+{% endif %}
+
+<script>
+// Filter squad by position
+function filterByPosition(position) {
+    // Update active filter button
+    document.querySelectorAll('.squad-filter').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Show/hide position sections
+    const sections = document.querySelectorAll('.position-section');
+    sections.forEach(section => {
+        if (position === 'all' || section.id.startsWith(position)) {
+            section.style.display = 'block';
+            
+            // Animate the section
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                section.style.transition = 'all 0.5s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+
+// Sort players by shirt number
+function sortPlayers() {
+    const positionSections = document.querySelectorAll('.players-grid');
+    
+    positionSections.forEach(section => {
+        const players = Array.from(section.children);
+        
+        players.sort((a, b) => {
+            const aNumber = parseInt(a.querySelector('.player-number-squad').textContent) || 999;
+            const bNumber = parseInt(b.querySelector('.player-number-squad').textContent) || 999;
+            return aNumber - bNumber;
+        });
+        
+        // Clear and reappend sorted players
+        section.innerHTML = '';
+        players.forEach(player => section.appendChild(player));
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Sort players by shirt number on load
+    sortPlayers();
+    
+    // Add animation to player cards
+    const playerCards = document.querySelectorAll('.player-card-squad');
+    playerCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateX(0)';
+        }, index * 50);
+    });
+});
+
+// Search functionality
+function searchPlayers() {
+    const searchTerm = document.getElementById('playerSearch')?.value.toLowerCase() || '';
+    
+    if (!searchTerm) {
+        // Show all players
+        document.querySelectorAll('.player-card-squad').forEach(card => {
+            card.style.display = 'flex';
+        });
+        return;
+    }
+    
+    // Filter players
+    document.querySelectorAll('.player-card-squad').forEach(card => {
+        const playerName = card.querySelector('.player-name-squad').textContent.toLowerCase();
+        if (playerName.includes(searchTerm)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+
+<!-- Search Bar (Optional) -->
+<div style="margin-bottom: 25px;">
+    <input type="text" 
+           id="playerSearch" 
+           placeholder="Search players by name..." 
+           oninput="searchPlayers()"
+           style="width: 100%; padding: 12px 15px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 0.9rem;">
+</div>
+
+{% endblock %}

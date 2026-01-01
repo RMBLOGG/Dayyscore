@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== PLAYERS PAGE STYLE ===== */
+.players-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #00ffcc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-select {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    min-width: 180px;
+    cursor: pointer;
+}
+
+.stats-card {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.player-card {
+    background: linear-gradient(145deg, #0f2027, #203a43);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ffcc;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+}
+
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.player-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #00ffcc;
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #00ffcc;
+}
+
+.player-position {
+    font-size: 0.85rem;
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.player-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.team-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.player-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.favorite-btn.active {
+    color: #ff4d4d;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.2);
+}
+
+.no-players {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.6;
+    font-size: 1.1rem;
+}
+
+.no-players i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Position filters */
+.position-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.position-filter {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.position-filter.active {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    border-color: #00ffcc;
+}
+
+.position-filter:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Top scorers highlight */
+.top-scorer {
+    border: 2px solid #ffcc00;
+    position: relative;
+}
+
+.top-scorer-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ffcc00;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    z-index: 10;
+}
+</style>
+
+<div class="players-title">
+    <i class="bi bi-people"></i> Players
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div>
+        <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Competition:</label>
+        <select class="filter-select" id="competitionSelect" onchange="changeCompetition()">
+            <option value="PL" {% if current_competition == 'PL' %}selected{% endif %}>Premier League</option>
+            <option value="PD" {% if current_competition == 'PD' %}selected{% endif %}>La Liga</option>
+            <option value="SA" {% if current_competition == 'SA' %}selected{% endif %}>Serie A</option>
+            <option value="BL1" {% if current_competition == 'BL1' %}selected{% endif %}>Bundesliga</option>
+            <option value="FL1" {% if current_competition == 'FL1' %}selected{% endif %}>Ligue 1</option>
+            <option value="CL" {% if current_competition == 'CL' %}selected{% endif %}>Champions League</option>
+        </select>
+    </div>
+    
+    <div>
+        <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Sort By:</label>
+        <select class="filter-select" id="sortSelect" onchange="sortPlayers()">
+            <option value="goals">Goals (High to Low)</option>
+            <option value="assists">Assists (High to Low)</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="team">Team (A-Z)</option>
+        </select>
+    </div>
+    
+    <div>
+        <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Position:</label>
+        <div class="position-filters">
+            <div class="position-filter active" onclick="filterByPosition('all')">All</div>
+            <div class="position-filter" onclick="filterByPosition('Forward')">Forward</div>
+            <div class="position-filter" onclick="filterByPosition('Midfielder')">Midfielder</div>
+            <div class="position-filter" onclick="filterByPosition('Defender')">Defender</div>
+            <div class="position-filter" onclick="filterByPosition('Goalkeeper')">Goalkeeper</div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Card -->
+<div class="stats-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div style="font-size: 1.1rem; font-weight: 700; color: #00ffcc;">
+            <i class="bi bi-trophy"></i> Top Scorers - {{ competitions.get(current_competition, current_competition) }}
+        </div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">
+            Showing {{ players|length }} players
+        </div>
+    </div>
+    
+    {% if players %}
+        <div class="player-grid">
+            {% for player_data in players %}
+            {% set player = player_data.player %}
+            {% set player_details = player_data.get('player_details', {}) %}
+            <div class="player-card {% if loop.index <= 3 %}top-scorer{% endif %}" 
+                 onclick="window.location.href='/player/{{ player.id }}'">
+                
+                {% if loop.index <= 3 %}
+                <div class="top-scorer-badge">#{{ loop.index }}</div>
+                {% endif %}
+                
+                <button class="favorite-btn" onclick="toggleFavoritePlayer(event, {{ player.id }})">
+                    <i class="bi bi-heart"></i>
+                </button>
+                
+                <div class="player-header">
+                    <div class="player-photo-container">
+                        {% if player_details and player_details.photo %}
+                        <img src="{{ player_details.photo }}" alt="{{ player.name }}" class="player-photo">
+                        {% else %}
+                        <div class="player-photo" style="background: linear-gradient(135deg, #00ffcc, #00a388); display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.5rem; font-weight: 800;">
+                            {{ player.name[0] if player.name else '?' }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="player-info">
+                        <div class="player-name">{{ player.name }}</div>
+                        <div class="player-position">{{ player.position if player.position else 'N/A' }}</div>
+                        
+                        {% if player_details and player_details.currentTeam %}
+                        <div class="player-team">
+                            <img src="{{ player_details.currentTeam.crest }}" alt="{{ player_details.currentTeam.name }}" class="team-logo">
+                            <span>{{ player_details.currentTeam.name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="player-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ player_data.goals if player_data.goals else 0 }}</div>
+                        <div class="stat-label">Goals</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value">{{ player_data.assists if player_data.assists else 0 }}</div>
+                        <div class="stat-label">Assists</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value">{{ player_data.penalties if player_data.penalties else 0 }}</div>
+                        <div class="stat-label">Penalties</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value">{{ player_data.playedMatches if player_data.playedMatches else 0 }}</div>
+                        <div class="stat-label">Matches</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7; text-align: center;">
+                    Click for detailed stats
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-players">
+            <i class="bi bi-person-x"></i>
+            <div>No player data available for this competition</div>
+            <div style="margin-top: 10px; font-size: 0.9rem;">
+                Try selecting a different competition
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Filter and sort functions
+function changeCompetition() {
+    const competition = document.getElementById('competitionSelect').value;
+    window.location.href = `/players?competition=${competition}`;
+}
+
+function sortPlayers() {
+    const sortBy = document.getElementById('sortSelect').value;
+    const playerCards = document.querySelectorAll('.player-card');
+    const playersArray = Array.from(playerCards);
+    
+    playersArray.sort((a, b) => {
+        const aStats = getPlayerStats(a);
+        const bStats = getPlayerStats(b);
+        
+        switch(sortBy) {
+            case 'goals':
+                return bStats.goals - aStats.goals;
+            case 'assists':
+                return bStats.assists - aStats.assists;
+            case 'name':
+                return aStats.name.localeCompare(bStats.name);
+            case 'team':
+                return aStats.team.localeCompare(bStats.team);
+            default:
+                return 0;
+        }
+    });
+    
+    const container = document.querySelector('.player-grid');
+    container.innerHTML = '';
+    playersArray.forEach(card => container.appendChild(card));
+}
+
+function getPlayerStats(card) {
+    const name = card.querySelector('.player-name').textContent;
+    const team = card.querySelector('.player-team span')?.textContent || '';
+    const goals = parseInt(card.querySelector('.stat-item:nth-child(1) .stat-value').textContent) || 0;
+    const assists = parseInt(card.querySelector('.stat-item:nth-child(2) .stat-value').textContent) || 0;
+    
+    return { name, team, goals, assists };
+}
+
+function filterByPosition(position) {
+    // Update active filter button
+    document.querySelectorAll('.position-filter').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const playerCards = document.querySelectorAll('.player-card');
+    playerCards.forEach(card => {
+        const playerPosition = card.querySelector('.player-position').textContent;
+        if (position === 'all' || playerPosition.includes(position)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Favorite functionality
+async function toggleFavoritePlayer(event, playerId) {
+    event.stopPropagation();
+    const btn = event.target.closest('.favorite-btn');
+    const icon = btn.querySelector('i');
+    
+    const isFavorite = icon.classList.contains('bi-heart-fill');
+    
+    try {
+        if (isFavorite) {
+            // Remove from favorites
+            const response = await fetch(`/api/favorite/player/${playerId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                showNotification('Removed from favorites', 'info');
+            }
+        } else {
+            // Add to favorites
+            const response = await fetch(`/api/favorite/player/${playerId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                showNotification('Added to favorites', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+        showNotification('Please login to use favorites', 'warning');
+    }
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    // Implementation similar to admin panel
+    alert(message); // Simplified for now
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to player cards
+    document.querySelectorAll('.player-card').forEach(card => {
+        card.style.cursor = 'pointer';
+    });
+    
+    // Check and update favorite buttons
+    // This would require checking server for user's favorites
+});
+</script>
+
+{% endblock %}

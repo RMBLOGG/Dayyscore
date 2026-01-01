@@ -7,6 +7,26 @@
     font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.refresh-btn {
+    background: #203a43;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.refresh-btn:hover {
+    background: #2c5364;
 }
 
 .live-card {
@@ -17,6 +37,7 @@
     color: #fff;
     box-shadow: 0 10px 25px rgba(0,0,0,.35);
     animation: fadeUp .4s ease;
+    border-left: 4px solid #ff4d4d;
 }
 
 @keyframes fadeUp {
@@ -24,55 +45,129 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.league-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .league-name {
     font-size: 0.75rem;
     opacity: .85;
-    margin-bottom: 10px;
+}
+
+.match-time {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.status-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+
+.status-live {
+    background: #ff4d4d;
+    color: white;
+}
+
+.status-ht {
+    background: #ffa500;
+    color: black;
+}
+
+.status-ft {
+    background: #4CAF50;
+    color: white;
 }
 
 .teams {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 12px;
 }
 
 .team {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     max-width: 40%;
 }
 
 .team img {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
 }
 
 .team span {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.score {
-    font-size: 1.2rem;
-    font-weight: 800;
-    background: rgba(0,0,0,.4);
-    padding: 6px 12px;
-    border-radius: 12px;
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 
-.live-badge {
-    margin-top: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.score {
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: rgba(0,0,0,.4);
+    padding: 8px 16px;
+    border-radius: 12px;
+    min-width: 80px;
+    text-align: center;
+}
+
+.score-breakdown {
+    display: flex;
+    gap: 10px;
     font-size: 0.7rem;
-    font-weight: 700;
+    opacity: 0.8;
+}
+
+.score-breakdown span {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.match-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.match-minute {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     color: #ff4d4d;
+    font-weight: 600;
 }
 
 .live-dot {
@@ -89,56 +184,224 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
+.venue {
+    opacity: 0.7;
+}
+
 .no-live {
     text-align: center;
+    padding: 40px 20px;
     opacity: .6;
-    margin-top: 30px;
     font-size: 0.9rem;
 }
+
+.no-live i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+/* Match Status Colors */
+.status-PLAYING { border-left-color: #ff4d4d; }
+.status-HALF_TIME { border-left-color: #ffa500; }
+.status-FINISHED { border-left-color: #4CAF50; }
+.status-PAUSED { border-left-color: #ff9800; }
+.status-SUSPENDED { border-left-color: #ff9800; }
 </style>
 
-<h1 class="live-title">🔴 Live Score</h1>
+<h1 class="live-title">
+    🔴 Live Score
+    <button class="refresh-btn" onclick="refreshLiveScores()">
+        <span id="refresh-icon">🔄</span> Refresh
+    </button>
+</h1>
 
 {% for m in matches %}
-<div class="live-card">
-    <div class="league-name">{{ m.competition.name }}</div>
-
-    <div class="teams">
-        <div class="team">
-            <img src="{{ m.homeTeam.crest }}">
-            <span>{{ m.homeTeam.name }}</span>
+<div class="live-card status-{{ m.status }}">
+    <div class="match-header">
+        <div class="league-info">
+            {% if m.competition.emblem %}
+            <img src="{{ m.competition.emblem }}" style="width: 20px; height: 20px;">
+            {% endif %}
+            <span class="league-name">{{ m.competition.name }}</span>
         </div>
-
-        <div class="score">
-            {{ m.score.fullTime.home }} - {{ m.score.fullTime.away }}
-        </div>
-
-        <div class="team">
-            <img src="{{ m.awayTeam.crest }}">
-            <span>{{ m.awayTeam.name }}</span>
+        
+        <div class="match-time">
+            {{ m.utcDate|datetimeformat("%H:%M") }}
         </div>
     </div>
 
-    <div class="live-badge">
-        <div class="live-dot"></div>
-        LIVE
+    <div class="teams">
+        <div class="team">
+            <img src="{{ m.homeTeam.crest }}" 
+                 onerror="this.src='https://via.placeholder.com/32/333/fff?text={{ m.homeTeam.shortName[:2] }}'">
+            <span>{{ m.homeTeam.shortName or m.homeTeam.name }}</span>
+        </div>
+
+        <div class="score-container">
+            <div class="score">
+                {{ m.score.fullTime.home if m.score.fullTime.home is not none else '0' }} 
+                - 
+                {{ m.score.fullTime.away if m.score.fullTime.away is not none else '0' }}
+            </div>
+            
+            {% if m.score.halfTime or m.score.regularTime or m.score.extraTime or m.score.penalties %}
+            <div class="score-breakdown">
+                {% if m.score.halfTime and (m.score.halfTime.home is not none or m.score.halfTime.away is not none) %}
+                <span>HT: {{ m.score.halfTime.home or '0' }}-{{ m.score.halfTime.away or '0' }}</span>
+                {% endif %}
+                
+                {% if m.score.regularTime and (m.score.regularTime.home is not none or m.score.regularTime.away is not none) %}
+                <span>RT: {{ m.score.regularTime.home or '0' }}-{{ m.score.regularTime.away or '0' }}</span>
+                {% endif %}
+                
+                {% if m.score.extraTime and (m.score.extraTime.home is not none or m.score.extraTime.away is not none) %}
+                <span>ET: {{ m.score.extraTime.home or '0' }}-{{ m.score.extraTime.away or '0' }}</span>
+                {% endif %}
+                
+                {% if m.score.penalties and (m.score.penalties.home is not none or m.score.penalties.away is not none) %}
+                <span>P: {{ m.score.penalties.home or '0' }}-{{ m.score.penalties.away or '0' }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="team" style="justify-content: flex-end;">
+            <span>{{ m.awayTeam.shortName or m.awayTeam.name }}</span>
+            <img src="{{ m.awayTeam.crest }}"
+                 onerror="this.src='https://via.placeholder.com/32/333/fff?text={{ m.awayTeam.shortName[:2] if m.awayTeam.shortName else m.awayTeam.name[:2] }}'">
+        </div>
+    </div>
+
+    <div class="match-details">
+        <div class="match-minute">
+            {% if m.status == 'LIVE' or m.status == 'IN_PLAY' %}
+            <div class="live-dot"></div>
+            {{ m.minute or 'LIVE' }}'
+            {% elif m.status == 'HALF_TIME' %}
+            ⏸️ Half Time
+            {% elif m.status == 'FINISHED' %}
+            ✅ Full Time
+            {% elif m.status == 'PAUSED' %}
+            ⏸️ Paused
+            {% elif m.status == 'SUSPENDED' %}
+            ⚠️ Suspended
+            {% else %}
+            {{ m.status|replace('_', ' ')|title }}
+            {% endif %}
+        </div>
+        
+        {% if m.venue %}
+        <div class="venue">
+            🏟️ {{ m.venue }}
+        </div>
+        {% endif %}
+        
+        {% if m.attendance %}
+        <div class="attendance">
+            👥 {{ m.attendance }}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% else %}
 <div class="no-live">
-    ⚽ Tidak ada pertandingan live saat ini
+    <div>⚽</div>
+    <div>Tidak ada pertandingan live saat ini</div>
+    <div style="font-size: 0.8rem; margin-top: 10px;">
+        Cek <a href="/finished" style="color: #4CAF50;">hasil pertandingan</a> atau 
+        <a href="/" style="color: #2196F3;">jadwal mendatang</a>
+    </div>
 </div>
 {% endfor %}
 
 <script>
-// animasi ringan biar terasa hidup
-document.querySelectorAll('.live-card').forEach(card => {
-    card.addEventListener('touchstart', () => {
-        card.style.transform = 'scale(0.98)';
+// Auto refresh setiap 30 detik untuk live matches
+let refreshInterval;
+
+function startAutoRefresh() {
+    // Hanya auto-refresh jika ada live matches
+    if (document.querySelector('.live-card')) {
+        refreshInterval = setInterval(refreshLiveScores, 30000); // 30 detik
+    }
+}
+
+function refreshLiveScores() {
+    const refreshBtn = document.querySelector('.refresh-btn');
+    const refreshIcon = document.querySelector('#refresh-icon');
+    
+    // Animasi refresh
+    refreshIcon.style.transform = 'rotate(180deg)';
+    refreshIcon.style.transition = 'transform 0.3s';
+    
+    // Fetch data baru
+    fetch('/live?refresh=true', {
+        headers: {
+            'Cache-Control': 'no-cache'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Update konten
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newContent = doc.querySelector('#content').innerHTML;
+        document.querySelector('#content').innerHTML = newContent;
+        
+        // Restart auto refresh
+        clearInterval(refreshInterval);
+        startAutoRefresh();
+        
+        // Reset animasi
+        setTimeout(() => {
+            refreshIcon.style.transform = 'rotate(0deg)';
+        }, 300);
+    })
+    .catch(error => {
+        console.error('Refresh error:', error);
+        refreshIcon.style.transform = 'rotate(0deg)';
     });
-    card.addEventListener('touchend', () => {
-        card.style.transform = 'scale(1)';
+}
+
+// Update waktu real-time untuk menit pertandingan
+function updateMatchMinutes() {
+    document.querySelectorAll('.match-minute').forEach(el => {
+        const text = el.textContent.trim();
+        if (text.includes("'")) {
+            const match = text.match(/(\d+)'/);
+            if (match) {
+                const minute = parseInt(match[1]);
+                if (minute < 130) { // Batas maksimal pertandingan
+                    el.textContent = `${minute + 1}'`;
+                    // Update dot animasi
+                    if (el.querySelector('.live-dot')) {
+                        el.querySelector('.live-dot').style.animation = 'pulse 1.2s infinite';
+                    }
+                }
+            }
+        }
     });
+}
+
+// Mulai auto refresh dan update waktu
+document.addEventListener('DOMContentLoaded', function() {
+    startAutoRefresh();
+    
+    // Update menit setiap 60 detik untuk LIVE matches
+    setInterval(updateMatchMinutes, 60000);
+    
+    // Animasi klik card
+    document.querySelectorAll('.live-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Bisa ditambahkan aksi klik di sini
+            // Contoh: window.location.href = `/match/${this.dataset.matchId}`;
+        });
+    });
+});
+
+// Cleanup interval saat pindah halaman
+window.addEventListener('beforeunload', function() {
+    clearInterval(refreshInterval);
 });
 </script>
 

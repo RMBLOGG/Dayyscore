@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== COACHES PAGE ===== */
+.coaches-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #00ffcc;
+}
+
+.coaches-container {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.coach-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.coach-card:hover {
+    background: rgba(0,0,0,0.5);
+    transform: translateY(-3px);
+}
+
+.coach-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #00ffcc;
+}
+
+.coach-info {
+    flex: 1;
+}
+
+.coach-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.coach-details {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.view-coach-btn {
+    background: rgba(0, 255, 204, 0.1);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    color: #00ffcc;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.no-coaches {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.6;
+}
+
+.no-coaches i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+</style>
+
+<h1 class="coaches-title">
+    <i class="bi bi-person-badge"></i> Coaches
+</h1>
+
+<div class="coaches-container">
+    {% if team_id %}
+    <div style="margin-bottom: 20px;">
+        <a href="/team/{{ team_id }}" style="color: #00ffcc; text-decoration: none;">
+            <i class="bi bi-arrow-left"></i> Back to Team
+        </a>
+    </div>
+    {% endif %}
+    
+    {% if coaches %}
+        {% for coach in coaches %}
+        <div class="coach-card" onclick="window.location.href='/coach/{{ coach.id }}'">
+            {% if coach.photo %}
+            <img src="{{ coach.photo }}" alt="{{ coach.name }}" class="coach-photo">
+            {% else %}
+            <div class="coach-photo" style="background: linear-gradient(135deg, #00ffcc, #00a388); display: flex; align-items: center; justify-content: center; color: #000; font-size: 2rem; font-weight: 800;">
+                {{ coach.name[0] if coach.name else '?' }}
+            </div>
+            {% endif %}
+            
+            <div class="coach-info">
+                <div class="coach-name">{{ coach.name }}</div>
+                
+                {% if coach.nationality %}
+                <div class="coach-details">
+                    <i class="bi bi-flag"></i> {{ coach.nationality }}
+                </div>
+                {% endif %}
+                
+                {% if coach.dateOfBirth %}
+                <div class="coach-details">
+                    <i class="bi bi-calendar"></i> {{ coach.dateOfBirth }}
+                </div>
+                {% endif %}
+                
+                {% if coach.currentTeam %}
+                <div class="coach-details">
+                    <i class="bi bi-people"></i> {{ coach.currentTeam.name }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <a href="/coach/{{ coach.id }}" class="view-coach-btn">
+                View Profile
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="no-coaches">
+        <i class="bi bi-person-x"></i>
+        <div>No coach data available</div>
+        <div style="margin-top: 10px;">
+            Try viewing a specific team to see their coach
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

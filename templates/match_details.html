@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.match-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.match-header {
+    background: linear-gradient(145deg, #0f2027, #203a43);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.match-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.team-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+}
+
+.team-crest {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.team-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.match-score {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: rgba(0,0,0,0.3);
+    padding: 20px 40px;
+    border-radius: 15px;
+}
+
+.match-status {
+    text-align: center;
+    font-size: 1.1rem;
+    margin: 10px 0;
+    padding: 8px 16px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.status-live { background: #ff4d4d; color: white; }
+.status-finished { background: #4CAF50; color: white; }
+.status-scheduled { background: #2196F3; color: white; }
+
+.match-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.info-card {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.info-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.score-breakdown {
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.score-breakdown h3 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.score-item {
+    background: rgba(0,0,0,0.2);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.score-period {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.score-numbers {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .match-teams {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .team-detail {
+        width: 100%;
+    }
+    
+    .match-score {
+        order: 1;
+        margin: 20px 0;
+    }
+}
+</style>
+
+<div class="match-detail-container">
+    {% if match %}
+    
+    <div class="match-header">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            {% if match.competition.emblem %}
+            <img src="{{ match.competition.emblem }}" style="width: 30px; height: 30px;">
+            {% endif %}
+            <h2>{{ match.competition.name }}</h2>
+        </div>
+        
+        <div style="text-align: center; opacity: 0.8;">
+            Matchday {{ match.matchday or 'N/A' }}
+        </div>
+    </div>
+    
+    <div class="match-teams">
+        <div class="team-detail">
+            <img src="{{ match.homeTeam.crest }}" class="team-crest" 
+                 onerror="this.src='https://via.placeholder.com/80/333/fff?text={{ match.homeTeam.shortName[:2] if match.homeTeam.shortName else match.homeTeam.name[:2] }}'">
+            <div class="team-name">{{ match.homeTeam.name }}</div>
+            <div style="opacity: 0.7; font-size: 0.9rem;">({{ match.homeTeam.shortName or '' }})</div>
+        </div>
+        
+        <div class="match-score">
+            {{ match.score.fullTime.home if match.score.fullTime.home is not none else '0' }}
+            -
+            {{ match.score.fullTime.away if match.score.fullTime.away is not none else '0' }}
+        </div>
+        
+        <div class="team-detail">
+            <img src="{{ match.awayTeam.crest }}" class="team-crest"
+                 onerror="this.src='https://via.placeholder.com/80/333/fff?text={{ match.awayTeam.shortName[:2] if match.awayTeam.shortName else match.awayTeam.name[:2] }}'">
+            <div class="team-name">{{ match.awayTeam.name }}</div>
+            <div style="opacity: 0.7; font-size: 0.9rem;">({{ match.awayTeam.shortName or '' }})</div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <div class="match-status status-{{ match.status|lower }}">
+            {{ match.status|match_status }}
+            {% if match.minute %}
+            - {{ match.minute }}'
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="match-info">
+        <div class="info-card">
+            <div class="info-label">📅 Date & Time</div>
+            <div class="info-value">
+                {% if match.utcDate %}
+                {{ match.utcDate|datetimeformat("%d %b %Y, %H:%M") }}
+                {% else %}
+                N/A
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if match.venue %}
+        <div class="info-card">
+            <div class="info-label">🏟️ Venue</div>
+            <div class="info-value">{{ match.venue }}</div>
+        </div>
+        {% endif %}
+        
+        {% if match.attendance %}
+        <div class="info-card">
+            <div class="info-label">👥 Attendance</div>
+            <div class="info-value">{{ match.attendance }}</div>
+        </div>
+        {% endif %}
+        
+        {% if match.referee %}
+        <div class="info-card">
+            <div class="info-label">⚖️ Referee</div>
+            <div class="info-value">{{ match.referee }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if match.score.halfTime or match.score.extraTime or match.score.penalties %}
+    <div class="score-breakdown">
+        <h3>📊 Score Breakdown</h3>
+        <div class="score-grid">
+            {% if match.score.halfTime and (match.score.halfTime.home is not none or match.score.halfTime.away is not none) %}
+            <div class="score-item">
+                <div class="score-period">Half Time</div>
+                <div class="score-numbers">
+                    {{ match.score.halfTime.home or '0' }} - {{ match.score.halfTime.away or '0' }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if match.score.extraTime and (match.score.extraTime.home is not none or match.score.extraTime.away is not none) %}
+            <div class="score-item">
+                <div class="score-period">Extra Time</div>
+                <div class="score-numbers">
+                    {{ match.score.extraTime.home or '0' }} - {{ match.score.extraTime.away or '0' }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if match.score.penalties and (match.score.penalties.home is not none or match.score.penalties.away is not none) %}
+            <div class="score-item">
+                <div class="score-period">Penalties</div>
+                <div class="score-numbers">
+                    {{ match.score.penalties.home or '0' }} - {{ match.score.penalties.away or '0' }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="/live" class="btn" style="background: #2196F3;">🔙 Back to Live Scores</a>
+    </div>
+    
+    {% else %}
+    <div style="text-align: center; padding: 50px;">
+        <h2>Match not found</h2>
+        <p>The match you're looking for doesn't exist or has been removed.</p>
+        <a href="/live" class="btn">Back to Live Scores</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

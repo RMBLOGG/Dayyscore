@@ -1,0 +1,951 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== FAVORITES PAGE STYLE ===== */
+.favorites-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #00ffcc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.favorites-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.fav-tab-btn {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.fav-tab-btn.active {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+}
+
+.fav-tab-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+}
+
+.fav-tab-content {
+    display: none;
+}
+
+.fav-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.no-favorites {
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.6;
+}
+
+.no-favorites i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+    color: #00ffcc;
+}
+
+.no-favorites h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.no-favorites p {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 20px;
+}
+
+.explore-btn {
+    background: linear-gradient(135deg, #00ffcc, #00a388);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: #000;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.explore-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 204, 0.3);
+}
+
+/* Teams Grid */
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.fav-team-card {
+    background: linear-gradient(145deg, #0f2027, #203a43);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.fav-team-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ffcc;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+}
+
+.fav-team-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.fav-team-crest {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,0.3));
+}
+
+.fav-team-info {
+    flex: 1;
+}
+
+.fav-team-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.fav-team-short {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.remove-fav-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,77,77,0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #ff6666;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.remove-fav-btn:hover {
+    background: rgba(255,77,77,0.3);
+    transform: scale(1.1);
+}
+
+.fav-team-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.fav-team-detail {
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.detail-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #00ffcc;
+}
+
+.view-team-btn {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 255, 204, 0.1);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    color: #00ffcc;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.view-team-btn:hover {
+    background: rgba(0, 255, 204, 0.2);
+}
+
+/* Players Grid */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.fav-player-card {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.fav-player-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ffcc;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+}
+
+.fav-player-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.fav-player-photo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #00ffcc;
+}
+
+.fav-player-info {
+    flex: 1;
+}
+
+.fav-player-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.fav-player-position {
+    font-size: 0.85rem;
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.fav-player-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.fav-player-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Actions Container */
+.favorites-actions {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(255,255,255,0.1);
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-btn-large {
+    background: linear-gradient(135deg, #00ffcc, #00a388);
+    border: none;
+    border-radius: 12px;
+    padding: 15px 30px;
+    color: #000;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.action-btn-large:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
+}
+
+.action-btn-large.secondary {
+    background: linear-gradient(135deg, #00aaff, #0066cc);
+}
+
+.action-btn-large.warning {
+    background: linear-gradient(135deg, #ff9900, #ff6600);
+}
+
+.action-btn-large.danger {
+    background: linear-gradient(135deg, #ff4d4d, #cc0000);
+}
+
+/* Export Options */
+.export-options {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 30px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    display: none;
+}
+
+.export-options.show {
+    display: block;
+}
+
+.export-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.export-option {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.export-option:hover {
+    background: rgba(0,0,0,0.5);
+    transform: translateY(-3px);
+}
+
+.export-option i {
+    font-size: 2rem;
+    color: #00ffcc;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.export-option span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .favorites-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding: 10px 5px;
+    }
+    
+    .fav-tab-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .teams-grid,
+    .players-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .favorites-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn-large {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="favorites-title">
+    <i class="bi bi-heart-fill"></i> My Favorites
+</div>
+
+<!-- Tabs -->
+<div class="favorites-tabs">
+    <button class="fav-tab-btn active" onclick="switchFavTab('teams')">Favorite Teams</button>
+    <button class="fav-tab-btn" onclick="switchFavTab('players')">Favorite Players</button>
+</div>
+
+<!-- Teams Tab -->
+<div id="teams-tab" class="fav-tab-content active">
+    {% if favorite_teams %}
+    <div class="teams-grid">
+        {% for team in favorite_teams %}
+        <div class="fav-team-card">
+            <button class="remove-fav-btn" onclick="removeFavoriteTeam({{ team.id }}, this)">
+                <i class="bi bi-heartbreak"></i>
+            </button>
+            
+            <div class="fav-team-header">
+                {% if team.crest %}
+                <img src="{{ team.crest }}" alt="{{ team.name }}" class="fav-team-crest">
+                {% else %}
+                <div class="fav-team-crest" style="background: linear-gradient(135deg, #00ffcc, #00a388); display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.5rem; font-weight: 800; border-radius: 8px;">
+                    {{ team.name[:2] if team.name else '?' }}
+                </div>
+                {% endif %}
+                
+                <div class="fav-team-info">
+                    <div class="fav-team-name">{{ team.name }}</div>
+                    {% if team.shortName %}
+                    <div class="fav-team-short">{{ team.shortName }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="fav-team-details">
+                {% if team.founded %}
+                <div class="fav-team-detail">
+                    <div class="detail-label">Founded</div>
+                    <div class="detail-value">{{ team.founded }}</div>
+                </div>
+                {% endif %}
+                
+                {% if team.venue %}
+                <div class="fav-team-detail">
+                    <div class="detail-label">Venue</div>
+                    <div class="detail-value" style="font-size: 0.8rem;">{{ team.venue[:15] }}{% if team.venue|length > 15 %}...{% endif %}</div>
+                </div>
+                {% endif %}
+                
+                {% if team.clubColors %}
+                <div class="fav-team-detail">
+                    <div class="detail-label">Colors</div>
+                    <div class="detail-value">
+                        {% for color in team.clubColors.split('/') %}
+                        <span style="display: inline-block; width: 12px; height: 12px; background-color: {{ color.strip() }}; margin: 0 2px; border-radius: 2px;"></span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if team.area and team.area.name %}
+                <div class="fav-team-detail">
+                    <div class="detail-label">Country</div>
+                    <div class="detail-value">{{ team.area.name }}</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <a href="/team/{{ team.id }}" class="view-team-btn">
+                View Team Details
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-favorites">
+        <i class="bi bi-people"></i>
+        <h3>No Favorite Teams</h3>
+        <p>You haven't added any teams to your favorites yet.</p>
+        <button class="explore-btn" onclick="window.location.href='/'">
+            <i class="bi bi-search"></i> Explore Teams
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Players Tab -->
+<div id="players-tab" class="fav-tab-content">
+    {% if favorite_players %}
+    <div class="players-grid">
+        {% for player in favorite_players %}
+        <div class="fav-player-card">
+            <button class="remove-fav-btn" onclick="removeFavoritePlayer({{ player.id }}, this)">
+                <i class="bi bi-heartbreak"></i>
+            </button>
+            
+            <div class="fav-player-header">
+                {% if player.photo %}
+                <img src="{{ player.photo }}" alt="{{ player.name }}" class="fav-player-photo">
+                {% else %}
+                <div class="fav-player-photo" style="background: linear-gradient(135deg, #00ffcc, #00a388); display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.5rem; font-weight: 800;">
+                    {{ player.name[0] if player.name else '?' }}
+                </div>
+                {% endif %}
+                
+                <div class="fav-player-info">
+                    <div class="fav-player-name">{{ player.name }}</div>
+                    <div class="fav-player-position">{{ player.position if player.position else 'Player' }}</div>
+                    
+                    {% if player.currentTeam %}
+                    <div class="fav-player-team">
+                        <img src="{{ player.currentTeam.crest }}" style="width: 20px; height: 20px;">
+                        <span>{{ player.currentTeam.name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="fav-player-stats">
+                <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Age</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #00ffcc;">{{ player.age if player.age else '?' }}</div>
+                </div>
+                
+                <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Nationality</div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: #00ffcc;">{{ player.nationality[:10] if player.nationality else 'N/A' }}</div>
+                </div>
+                
+                <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <div style="font-size: 0.75rem; opacity: 0.8;">Shirt</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #00ffcc;">{{ player.shirtNumber if player.shirtNumber else '?' }}</div>
+                </div>
+            </div>
+            
+            <a href="/player/{{ player.id }}" class="view-team-btn" style="margin-top: 15px;">
+                View Player Profile
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-favorites">
+        <i class="bi bi-person"></i>
+        <h3>No Favorite Players</h3>
+        <p>You haven't added any players to your favorites yet.</p>
+        <button class="explore-btn" onclick="window.location.href='/players'">
+            <i class="bi bi-search"></i> Explore Players
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Actions -->
+<div class="favorites-actions">
+    <button class="action-btn-large" onclick="exportFavorites()">
+        <i class="bi bi-download"></i> Export Favorites
+    </button>
+    
+    <button class="action-btn-large secondary" onclick="shareFavorites()">
+        <i class="bi bi-share"></i> Share Favorites
+    </button>
+    
+    <button class="action-btn-large warning" onclick="showExportOptions()">
+        <i class="bi bi-gear"></i> Manage Favorites
+    </button>
+    
+    {% if favorite_teams or favorite_players %}
+    <button class="action-btn-large danger" onclick="clearAllFavorites()">
+        <i class="bi bi-trash"></i> Clear All Favorites
+    </button>
+    {% endif %}
+</div>
+
+<!-- Export Options -->
+<div class="export-options" id="exportOptions">
+    <h3 style="color: #00ffcc; margin-bottom: 20px;">
+        <i class="bi bi-gear"></i> Manage Favorites
+    </h3>
+    
+    <div class="export-grid">
+        <div class="export-option" onclick="backupFavorites()">
+            <i class="bi bi-cloud-arrow-up"></i>
+            <span>Backup to Cloud</span>
+        </div>
+        
+        <div class="export-option" onclick="importFavorites()">
+            <i class="bi bi-cloud-arrow-down"></i>
+            <span>Import from Cloud</span>
+        </div>
+        
+        <div class="export-option" onclick="syncFavorites()">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>Sync with Account</span>
+        </div>
+        
+        <div class="export-option" onclick="setFavoritesReminders()">
+            <i class="bi bi-bell"></i>
+            <span>Set Reminders</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching
+function switchFavTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.fav-tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Deactivate all buttons
+    document.querySelectorAll('.fav-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Activate clicked button
+    event.target.classList.add('active');
+}
+
+// Remove favorite team
+async function removeFavoriteTeam(teamId, element) {
+    if (!confirm('Remove this team from favorites?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/favorite/team/${teamId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Remove card with animation
+            const card = element.closest('.fav-team-card');
+            card.style.transform = 'scale(0.9)';
+            card.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                card.remove();
+                
+                // Check if no more teams
+                const teamsContainer = document.querySelector('#teams-tab .teams-grid');
+                if (!teamsContainer.querySelector('.fav-team-card')) {
+                    showNoTeamsMessage();
+                }
+                
+                showNotification('Team removed from favorites', 'info');
+            }, 300);
+        }
+    } catch (error) {
+        console.error('Error removing favorite:', error);
+        showNotification('Failed to remove team', 'error');
+    }
+}
+
+// Remove favorite player
+async function removeFavoritePlayer(playerId, element) {
+    if (!confirm('Remove this player from favorites?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/favorite/player/${playerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Remove card with animation
+            const card = element.closest('.fav-player-card');
+            card.style.transform = 'scale(0.9)';
+            card.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                card.remove();
+                
+                // Check if no more players
+                const playersContainer = document.querySelector('#players-tab .players-grid');
+                if (!playersContainer.querySelector('.fav-player-card')) {
+                    showNoPlayersMessage();
+                }
+                
+                showNotification('Player removed from favorites', 'info');
+            }, 300);
+        }
+    } catch (error) {
+        console.error('Error removing favorite:', error);
+        showNotification('Failed to remove player', 'error');
+    }
+}
+
+// Show no teams message
+function showNoTeamsMessage() {
+    const teamsTab = document.getElementById('teams-tab');
+    teamsTab.innerHTML = `
+        <div class="no-favorites">
+            <i class="bi bi-people"></i>
+            <h3>No Favorite Teams</h3>
+            <p>You haven't added any teams to your favorites yet.</p>
+            <button class="explore-btn" onclick="window.location.href='/'">
+                <i class="bi bi-search"></i> Explore Teams
+            </button>
+        </div>
+    `;
+}
+
+// Show no players message
+function showNoPlayersMessage() {
+    const playersTab = document.getElementById('players-tab');
+    playersTab.innerHTML = `
+        <div class="no-favorites">
+            <i class="bi bi-person"></i>
+            <h3>No Favorite Players</h3>
+            <p>You haven't added any players to your favorites yet.</p>
+            <button class="explore-btn" onclick="window.location.href='/players'">
+                <i class="bi bi-search"></i> Explore Players
+            </button>
+        </div>
+    `;
+}
+
+// Export favorites
+function exportFavorites() {
+    const favorites = {
+        teams: {{ favorite_teams|tojson|safe }},
+        players: {{ favorite_players|tojson|safe }},
+        exportedAt: new Date().toISOString(),
+        source: 'Football App Favorites'
+    };
+    
+    const dataStr = JSON.stringify(favorites, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `football-favorites-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('Favorites exported successfully!', 'success');
+}
+
+// Share favorites
+function shareFavorites() {
+    const teamCount = {{ favorite_teams|length }};
+    const playerCount = {{ favorite_players|length }};
+    
+    const shareText = `Check out my football favorites! ${teamCount} teams and ${playerCount} players.`;
+    const shareUrl = window.location.href;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'My Football Favorites',
+            text: shareText,
+            url: shareUrl
+        });
+    } else {
+        // Fallback: Copy to clipboard
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            showNotification('Link copied to clipboard!', 'success');
+        });
+    }
+}
+
+// Show export options
+function showExportOptions() {
+    const options = document.getElementById('exportOptions');
+    options.classList.toggle('show');
+}
+
+// Clear all favorites
+async function clearAllFavorites() {
+    if (!confirm('Are you sure you want to clear ALL favorites? This cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        // Clear teams
+        const teamPromises = {{ favorite_teams|map(attribute='id')|list|tojson|safe }}.map(teamId => 
+            fetch(`/api/favorite/team/${teamId}`, { method: 'DELETE' })
+        );
+        
+        // Clear players
+        const playerPromises = {{ favorite_players|map(attribute='id')|list|tojson|safe }}.map(playerId => 
+            fetch(`/api/favorite/player/${playerId}`, { method: 'DELETE' })
+        );
+        
+        const allPromises = [...teamPromises, ...playerPromises];
+        
+        await Promise.all(allPromises);
+        
+        // Update UI
+        showNoTeamsMessage();
+        showNoPlayersMessage();
+        
+        showNotification('All favorites cleared successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error clearing favorites:', error);
+        showNotification('Failed to clear favorites', 'error');
+    }
+}
+
+// Backup favorites (placeholder)
+function backupFavorites() {
+    showNotification('Backup feature requires cloud integration', 'info');
+}
+
+// Import favorites (placeholder)
+function importFavorites() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const favorites = JSON.parse(e.target.result);
+                    showNotification(`Found ${favorites.teams?.length || 0} teams and ${favorites.players?.length || 0} players`, 'info');
+                } catch (error) {
+                    showNotification('Invalid favorites file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    
+    input.click();
+}
+
+// Sync favorites (placeholder)
+function syncFavorites() {
+    showNotification('Syncing favorites with your account...', 'info');
+}
+
+// Set favorites reminders (placeholder)
+function setFavoritesReminders() {
+    showNotification('Reminder settings feature coming soon', 'info');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    // Add styles if not exists
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: #0a0f14;
+                border-left: 4px solid #00ffcc;
+                padding: 15px 20px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 10000;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            }
+            .notification-success { border-color: #00ffcc; }
+            .notification-info { border-color: #00aaff; }
+            .notification-error { border-color: #ff4d4d; }
+            .notification i { font-size: 1.2rem; }
+            .notification-success i { color: #00ffcc; }
+            .notification-info i { color: #00aaff; }
+            .notification-error i { color: #ff4d4d; }
+            .notification button {
+                background: none;
+                border: none;
+                color: #ccc;
+                font-size: 1.5rem;
+                cursor: pointer;
+                margin-left: 10px;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Add animation to cards
+    const cards = document.querySelectorAll('.fav-team-card, .fav-player-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+
+{% endblock %}
