@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football App - Maintenance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0a0f14 0%, #131b23 100%);
+            color: #eaeaea;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .maintenance-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(10, 15, 20, 0.9);
+            border-radius: 24px;
+            border: 2px solid rgba(0, 255, 204, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .maintenance-icon {
+            font-size: 4rem;
+            color: #ff9900;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            color: #ff9900;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+        
+        .message {
+            background: rgba(255, 153, 0, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            border-left: 4px solid #ff9900;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .message h3 {
+            color: #ff9900;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 30px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9900, #ff6600);
+            width: 65%;
+            animation: progress 2s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0%, 100% { width: 65%; }
+            50% { width: 70%; }
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .info-box i {
+            font-size: 1.5rem;
+            color: #00ffcc;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #00ffcc;
+        }
+        
+        .countdown {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00ffcc;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        
+        .admin-login {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .admin-btn {
+            background: linear-gradient(135deg, #ff9900, #ff6600);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 153, 0, 0.3);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-link {
+            background: rgba(255,255,255,0.05);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .social-link:hover {
+            background: rgba(255, 153, 0, 0.2);
+            color: #ff9900;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="maintenance-container">
+    <div class="maintenance-icon">
+        <i class="bi bi-tools"></i>
+    </div>
+    
+    <h1>UNDER MAINTENANCE</h1>
+    <div class="subtitle">We're performing important updates</div>
+    
+    <div class="message">
+        <h3><i class="bi bi-info-circle"></i> What's Happening?</h3>
+        <p>We're currently upgrading our servers and implementing new features to provide you with a better experience. The Football App will be back online shortly.</p>
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-box">
+            <i class="bi bi-clock-history"></i>
+            <div class="info-label">Started At</div>
+            <div class="info-value" id="startTime">15:30 WIB</div>
+        </div>
+        <div class="info-box">
+            <i class="bi bi-clock"></i>
+            <div class="info-label">Estimated Finish</div>
+            <div class="info-value" id="endTime">18:00 WIB</div>
+        </div>
+    </div>
+    
+    <div class="countdown" id="countdown">01:45:30</div>
+    
+    <div class="info-grid">
+        <div class="info-box">
+            <i class="bi bi-server"></i>
+            <div class="info-label">Progress</div>
+            <div class="info-value">65%</div>
+        </div>
+        <div class="info-box">
+            <i class="bi bi-activity"></i>
+            <div class="info-label">Services</div>
+            <div class="info-value">3/5 Active</div>
+        </div>
+    </div>
+    
+    <div class="social-links">
+        <a href="#" class="social-link">
+            <i class="bi bi-twitter"></i>
+        </a>
+        <a href="#" class="social-link">
+            <i class="bi bi-facebook"></i>
+        </a>
+        <a href="#" class="social-link">
+            <i class="bi bi-instagram"></i>
+        </a>
+        <a href="#" class="social-link">
+            <i class="bi bi-envelope"></i>
+        </a>
+    </div>
+    
+    <div class="admin-login">
+        <button class="admin-btn" onclick="adminLogin()">
+            <i class="bi bi-shield-lock"></i> Admin Login
+        </button>
+    </div>
+</div>
+
+<script>
+// Set times
+function setTimes() {
+    const now = new Date();
+    const start = new Date(now.getTime() - 45 * 60000); // 45 minutes ago
+    const end = new Date(now.getTime() + 105 * 60000); // 1 hour 45 minutes from now
+    
+    document.getElementById('startTime').textContent = 
+        start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ' WIB';
+    
+    document.getElementById('endTime').textContent = 
+        end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ' WIB';
+}
+
+// Countdown timer
+function updateCountdown() {
+    const now = new Date();
+    const end = new Date(now.getTime() + 105 * 60000); // 1 hour 45 minutes from now
+    
+    const diff = end - now;
+    
+    if (diff <= 0) {
+        document.getElementById('countdown').textContent = '00:00:00';
+        checkMaintenance();
+        return;
+    }
+    
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    
+    document.getElementById('countdown').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Check if maintenance is over
+function checkMaintenance() {
+    // In production, this would check with backend
+    const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+    
+    if (!maintenanceMode) {
+        window.location.href = '/';
+    }
+}
+
+// Admin login
+function adminLogin() {
+    const password = prompt('Enter admin password:');
+    if (password === 'admin123') { // Default password for demo
+        localStorage.setItem('isAdmin', 'true');
+        window.location.href = '/admin';
+    } else {
+        alert('Incorrect password!');
+    }
+}
+
+// Initialize
+setTimes();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+setInterval(checkMaintenance, 30000);
+
+// Auto-refresh every 5 minutes
+setTimeout(() => {
+    location.reload();
+}, 300000);
+</script>
+
+</body>
+</html>

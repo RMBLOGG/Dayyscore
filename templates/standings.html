@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== STANDINGS ===== */
+.standings-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+.standings-wrapper {
+    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    font-size: .8rem;
+}
+
+.standings-table thead {
+    position: sticky;
+    top: 0;
+    background: rgba(0,0,0,.8);
+    z-index: 10;
+}
+
+.standings-table th {
+    padding: 8px 4px;
+    font-size: .65rem;
+    text-transform: uppercase;
+    opacity: .8;
+}
+
+.standings-table td {
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.club {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.club img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.club span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    font-weight: 600;
+}
+
+.points {
+    font-weight: 800;
+}
+
+.top {
+    background: rgba(0,255,150,.12);
+}
+
+.relegation {
+    background: rgba(255,50,50,.15);
+}
+
+.rank {
+    font-weight: 700;
+}
+
+</style>
+
+<h3 class="standings-title">🏆 {{ competition.name }}</h3>
+
+<div class="standings-wrapper">
+    <table class="standings-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Club</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>Pts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in standings %}
+            <tr class="
+                {% if team.position <= 4 %}top{% endif %}
+                {% if team.position >= standings|length - 2 %}relegation{% endif %}
+            ">
+                <td class="rank">{{ team.position }}</td>
+                <td>
+                    <div class="club">
+                        <img src="{{ team.team.crest }}">
+                        <span>{{ team.team.name }}</span>
+                    </div>
+                </td>
+                <td>{{ team.playedGames }}</td>
+                <td>{{ team.won }}</td>
+                <td>{{ team.draw }}</td>
+                <td>{{ team.lost }}</td>
+                <td class="points">{{ team.points }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+// animasi muncul
+document.querySelectorAll('.standings-table tbody tr').forEach((row, i) => {
+    row.style.opacity = 0;
+    setTimeout(() => {
+        row.style.transition = 'all .4s ease';
+        row.style.opacity = 1;
+        row.style.transform = 'translateY(0)';
+    }, i * 35);
+});
+</script>
+
+{% endblock %}

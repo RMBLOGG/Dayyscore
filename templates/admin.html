@@ -1,0 +1,1052 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== ADMIN PANEL ===== */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(0, 255, 204, 0.3);
+}
+
+.admin-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #00ffcc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-user-info {
+    background: rgba(0,0,0,0.3);
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-user-info i {
+    color: #00ffcc;
+}
+
+.logout-btn {
+    background: rgba(255,77,77,0.2);
+    color: #ff9999;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255,77,77,0.3);
+    color: #ff6666;
+    transform: translateY(-2px);
+}
+
+.admin-card {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #00ffcc;
+}
+
+.card-title i {
+    font-size: 1.3rem;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-box {
+    background: #0d1219;
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0, 255, 204, 0.3);
+}
+
+.stat-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00ffcc, transparent);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #00ffcc;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-detail {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 5px;
+}
+
+.admin-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.control-btn {
+    background: linear-gradient(135deg, #00ffcc, #00a388);
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0, 255, 204, 0.3);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.control-btn.danger {
+    background: linear-gradient(135deg, #ff4d4d, #cc0000);
+    color: white;
+}
+
+.control-btn.danger:hover {
+    box-shadow: 0 5px 20px rgba(255, 77, 77, 0.3);
+}
+
+.control-btn.warning {
+    background: linear-gradient(135deg, #ffcc00, #ff9900);
+}
+
+.control-btn.warning:hover {
+    box-shadow: 0 5px 20px rgba(255, 204, 0, 0.3);
+}
+
+.control-btn.info {
+    background: linear-gradient(135deg, #00aaff, #0066cc);
+    color: white;
+}
+
+.logs-container {
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+.log-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.log-time {
+    color: #00ffcc;
+    min-width: 70px;
+    font-family: monospace;
+}
+
+.log-level {
+    min-width: 60px;
+    text-align: center;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.log-level.info { background: rgba(0, 255, 204, 0.2); color: #00ffcc; }
+.log-level.warning { background: rgba(255, 204, 0, 0.2); color: #ffcc00; }
+.log-level.error { background: rgba(255, 77, 77, 0.2); color: #ff6666; }
+.log-level.debug { background: rgba(102, 102, 255, 0.2); color: #6666ff; }
+
+.log-message {
+    color: #ccc;
+    flex: 1;
+    word-break: break-word;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #00ffcc;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.maintenance-banner {
+    background: linear-gradient(90deg, #ff9900, #ff6600);
+    color: black;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-top: 15px;
+    text-align: center;
+    animation: pulse 2s infinite;
+    display: none;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+.api-usage-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+}
+
+.api-usage-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.api-usage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ffcc, #00a388);
+    width: {{ stats.api_usage_percent }}%;
+    transition: width 0.5s;
+    position: relative;
+}
+
+.api-usage-fill.warning {
+    background: linear-gradient(90deg, #ffcc00, #ff9900);
+}
+
+.api-usage-fill.danger {
+    background: linear-gradient(90deg, #ff4d4d, #cc0000);
+}
+
+.api-usage-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Maintenance status indicator */
+.maintenance-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-on {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff6666;
+}
+
+.status-off {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+}
+
+.log-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn.active {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    border-color: #00ffcc;
+}
+
+.filter-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+}
+
+.real-time-badge {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 5px;
+}
+</style>
+
+<div class="admin-header">
+    <div class="admin-title">
+        <i class="bi bi-shield-lock"></i> Admin Panel
+        <span class="maintenance-status {% if stats.maintenance_mode %}status-on{% else %}status-off{% endif %}" id="maintenanceStatus">
+            <i class="bi bi-{% if stats.maintenance_mode %}toggle-on{% else %}toggle-off{% endif %}"></i>
+            {% if stats.maintenance_mode %}MAINTENANCE ON{% else %}MAINTENANCE OFF{% endif %}
+        </span>
+    </div>
+    
+    <div class="admin-user-info">
+        <i class="bi bi-person-circle"></i>
+        <span>{{ admin_username }}</span>
+        <a href="/admin/logout" class="logout-btn">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="admin-stats">
+    <div class="stat-box" onclick="refreshStats()" title="Click to refresh">
+        <div class="stat-number" id="totalMatches">{{ stats.total_matches }}</div>
+        <div class="stat-label">Total Matches</div>
+        <div class="stat-detail">Upcoming this week</div>
+    </div>
+    <div class="stat-box" onclick="refreshStats()" title="Click to refresh">
+        <div class="stat-number" id="liveMatches">{{ stats.live_matches }}</div>
+        <div class="stat-label">Live Now</div>
+        <div class="stat-detail">Currently playing</div>
+    </div>
+    <div class="stat-box" onclick="testAPI()" title="Click to test API">
+        <div class="stat-number" id="apiStatus" style="color: {% if stats.api_status == 'OK' %}#00ffcc{% else %}#ff4d4d{% endif %}">
+            {{ stats.api_status }}
+        </div>
+        <div class="stat-label">API Status</div>
+        <div class="stat-detail">Football Data API</div>
+    </div>
+    <div class="stat-box" onclick="refreshStats()" title="Click to refresh">
+        <div class="stat-number" id="usersOnline">{{ stats.users_online }}</div>
+        <div class="stat-label">Users Online</div>
+        <div class="stat-detail">Active in last 5 min</div>
+    </div>
+</div>
+
+<!-- API Usage -->
+<div class="admin-card">
+    <div class="card-title">
+        <i class="bi bi-graph-up"></i> API Usage Today
+        <span class="real-time-badge">REAL-TIME</span>
+    </div>
+    
+    <div class="api-usage-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 0.9rem; font-weight: 700;">
+                {{ stats.api_calls_today }} / {{ stats.api_rate_limit }} calls
+            </div>
+            <div style="font-size: 0.8rem; color: {% if stats.api_usage_percent > 80 %}#ff4d4d{% elif stats.api_usage_percent > 60 %}#ffcc00{% else %}#00ffcc{% endif %};">
+                {{ stats.api_usage_percent }}%
+            </div>
+        </div>
+        
+        <div class="api-usage-bar">
+            <div class="api-usage-fill {% if stats.api_usage_percent > 80 %}danger{% elif stats.api_usage_percent > 60 %}warning{% endif %}" 
+                 id="apiUsageBar"></div>
+        </div>
+        
+        <div class="api-usage-text">
+            <span>Used: {{ stats.api_calls_today }}</span>
+            <span>Limit: {{ stats.api_rate_limit }}</span>
+            <span>Remaining: {{ stats.api_rate_limit - stats.api_calls_today }}</span>
+        </div>
+        
+        <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 10px; text-align: center;">
+            Resets at midnight UTC
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Controls -->
+<div class="admin-card">
+    <div class="card-title">
+        <i class="bi bi-tools"></i> Maintenance Controls
+    </div>
+    
+    <div class="toggle-switch">
+        <div>
+            <div style="font-weight: 700; margin-bottom: 4px;">Maintenance Mode</div>
+            <div style="font-size: 0.8rem; opacity: 0.7;">Toggles maintenance mode for all users</div>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="maintenanceToggle" {% if stats.maintenance_mode %}checked{% endif %}>
+            <span class="slider"></span>
+        </label>
+    </div>
+    
+    <div class="toggle-switch">
+        <div>
+            <div style="font-weight: 700; margin-bottom: 4px;">Update API Key</div>
+            <div style="font-size: 0.8rem; opacity: 0.7;">Change Football Data API key</div>
+        </div>
+        <button class="control-btn info" style="padding: 8px 16px; font-size: 0.8rem;" onclick="updateAPIKey()">
+            <i class="bi bi-key"></i> Update
+        </button>
+    </div>
+    
+    <div id="maintenanceBanner" class="maintenance-banner" style="{% if stats.maintenance_mode %}display: block;{% endif %}">
+        ⚠️ MAINTENANCE MODE ACTIVE - Users are redirected to maintenance page
+    </div>
+</div>
+
+<!-- System Controls -->
+<div class="admin-card">
+    <div class="card-title">
+        <i class="bi bi-cpu"></i> System Controls
+    </div>
+    
+    <div class="admin-controls">
+        <button class="control-btn" onclick="refreshCache()" id="refreshCacheBtn">
+            <i class="bi bi-arrow-clockwise"></i> Refresh Cache
+            <span class="real-time-badge">{{ stats.cache_size }} entries</span>
+        </button>
+        <button class="control-btn" onclick="clearLogs()" id="clearLogsBtn">
+            <i class="bi bi-trash"></i> Clear Logs
+        </button>
+        <button class="control-btn warning" onclick="backupSystem()" id="backupBtn">
+            <i class="bi bi-database"></i> Backup System
+        </button>
+        <button class="control-btn danger" onclick="restartService()" id="restartBtn">
+            <i class="bi bi-power"></i> Restart Service
+        </button>
+    </div>
+    
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="control-btn info" style="padding: 10px 15px; font-size: 0.85rem;" onclick="getSystemInfo()">
+            <i class="bi bi-info-circle"></i> System Info
+        </button>
+        <button class="control-btn" style="padding: 10px 15px; font-size: 0.85rem;" onclick="exportLogs()">
+            <i class="bi bi-download"></i> Export Logs
+        </button>
+        <button class="control-btn warning" style="padding: 10px 15px; font-size: 0.85rem;" onclick="cleanupDatabase()">
+            <i class="bi bi-broom"></i> Cleanup DB
+        </button>
+    </div>
+</div>
+
+<!-- System Logs -->
+<div class="admin-card">
+    <div class="card-title">
+        <i class="bi bi-journal-text"></i> System Logs
+        <span class="real-time-badge">LIVE</span>
+    </div>
+    
+    <div class="log-filters">
+        <button class="filter-btn active" data-level="all" onclick="filterLogs('all')">All</button>
+        <button class="filter-btn" data-level="info" onclick="filterLogs('info')">Info</button>
+        <button class="filter-btn" data-level="warning" onclick="filterLogs('warning')">Warning</button>
+        <button class="filter-btn" data-level="error" onclick="filterLogs('error')">Error</button>
+        <button class="filter-btn" data-level="debug" onclick="filterLogs('debug')">Debug</button>
+        <div style="margin-left: auto; display: flex; gap: 5px;">
+            <button class="filter-btn" onclick="refreshLogs()" title="Refresh logs">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="filter-btn" onclick="autoRefreshLogs()" id="autoRefreshBtn" title="Auto-refresh logs">
+                <i class="bi bi-play-circle"></i> Auto
+            </button>
+        </div>
+    </div>
+    
+    <div class="logs-container" id="systemLogs">
+        {% for log in recent_logs %}
+        <div class="log-entry" data-level="{{ log.level }}">
+            <span class="log-time">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
+            <span class="log-level {{ log.level }}">{{ log.level|upper }}</span>
+            <span class="log-message">{{ log.message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="margin-top: 10px; font-size: 0.75rem; opacity: 0.6; text-align: center;">
+        Showing {{ recent_logs|length }} most recent logs
+    </div>
+</div>
+
+<script>
+// Global variables
+let autoRefreshInterval = null;
+let isAutoRefreshing = false;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Set API usage bar width
+    document.getElementById('apiUsageBar').style.width = '{{ stats.api_usage_percent }}%';
+    
+    // Add event listener to maintenance toggle
+    document.getElementById('maintenanceToggle').addEventListener('change', toggleMaintenance);
+    
+    // Start auto-refresh for stats
+    setInterval(refreshStats, 30000); // Every 30 seconds
+});
+
+// Maintenance toggle
+async function toggleMaintenance() {
+    const toggle = document.getElementById('maintenanceToggle');
+    const banner = document.getElementById('maintenanceBanner');
+    const status = document.getElementById('maintenanceStatus');
+    
+    // Disable toggle during request
+    toggle.disabled = true;
+    
+    try {
+        const response = await fetch('/admin/toggle_maintenance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.maintenance_mode) {
+                banner.style.display = 'block';
+                status.innerHTML = '<i class="bi bi-toggle-on"></i> MAINTENANCE ON';
+                status.className = 'maintenance-status status-on';
+                addLog('Maintenance mode enabled', 'info');
+            } else {
+                banner.style.display = 'none';
+                status.innerHTML = '<i class="bi bi-toggle-off"></i> MAINTENANCE OFF';
+                status.className = 'maintenance-status status-off';
+                addLog('Maintenance mode disabled', 'info');
+            }
+        } else {
+            showNotification('Error: ' + (data.error || 'Failed to toggle maintenance'), 'error');
+            toggle.checked = !toggle.checked; // Revert toggle
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Network error. Please try again.', 'error');
+        toggle.checked = !toggle.checked; // Revert toggle
+    } finally {
+        toggle.disabled = false;
+    }
+}
+
+// Refresh stats
+async function refreshStats() {
+    try {
+        const response = await fetch('/health');
+        const data = await response.json();
+        
+        // Update users online
+        document.getElementById('usersOnline').textContent = data.users_online;
+        
+        // Update API calls
+        const apiCalls = data.api_calls_today;
+        const apiLimit = {{ stats.api_rate_limit }};
+        const apiPercent = Math.min(100, Math.round((apiCalls / apiLimit) * 100));
+        
+        document.getElementById('apiUsageBar').style.width = apiPercent + '%';
+        document.getElementById('apiUsageBar').className = 'api-usage-fill ' + 
+            (apiPercent > 80 ? 'danger' : apiPercent > 60 ? 'warning' : '');
+        
+        // Update cache size
+        document.querySelector('#refreshCacheBtn .real-time-badge').textContent = data.cache_entries + ' entries';
+        
+    } catch (error) {
+        console.error('Failed to refresh stats:', error);
+    }
+}
+
+// Control functions
+async function refreshCache() {
+    const btn = document.getElementById('refreshCacheBtn');
+    const originalText = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Refreshing...';
+        btn.disabled = true;
+        
+        const response = await fetch('/admin/refresh_cache', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Cache refreshed successfully! ' + data.cache_size + ' entries cleared.', 'success');
+            addLog('Cache cleared manually', 'info');
+            
+            // Update cache size badge
+            document.querySelector('#refreshCacheBtn .real-time-badge').textContent = data.cache_size + ' entries';
+        } else {
+            showNotification('Error: ' + (data.error || 'Failed to refresh cache'), 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Network error. Please try again.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function clearLogs() {
+    if (!confirm('Are you sure you want to clear all system logs? This cannot be undone.')) {
+        return;
+    }
+    
+    const btn = document.getElementById('clearLogsBtn');
+    const originalText = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Clearing...';
+        btn.disabled = true;
+        
+        // This would require a new endpoint to clear logs
+        // For now, we'll just show a message
+        showNotification('Log clearing feature requires backend implementation.', 'warning');
+        
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function backupSystem() {
+    const btn = document.getElementById('backupBtn');
+    const originalText = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creating backup...';
+        btn.disabled = true;
+        
+        const response = await fetch('/admin/backup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Backup created successfully! File: ' + data.backup_file, 'success');
+            addLog('System backup created: ' + data.backup_file, 'info');
+        } else {
+            showNotification('Error: ' + (data.error || 'Failed to create backup'), 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Network error. Please try again.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+function restartService() {
+    if (!confirm('Are you sure you want to restart the service? This will cause a brief downtime (5-10 seconds).')) {
+        return;
+    }
+    
+    const btn = document.getElementById('restartBtn');
+    btn.disabled = true;
+    
+    showNotification('Service restart initiated. You will be redirected shortly...', 'warning');
+    addLog('Service restart requested', 'warning');
+    
+    // In a real application, this would trigger a server restart
+    // For now, we'll just reload the page after a delay
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 3000);
+}
+
+async function testAPI() {
+    const apiStatus = document.getElementById('apiStatus');
+    const originalText = apiStatus.textContent;
+    const originalColor = apiStatus.style.color;
+    
+    apiStatus.textContent = 'Testing...';
+    apiStatus.style.color = '#ffcc00';
+    addLog('Testing API connection...', 'info');
+    
+    try {
+        const response = await fetch('/health');
+        const data = await response.json();
+        
+        if (data.services.api === 'OK') {
+            apiStatus.textContent = 'OK';
+            apiStatus.style.color = '#00ffcc';
+            showNotification('✅ API connection test successful!', 'success');
+            addLog('API test successful', 'info');
+        } else {
+            apiStatus.textContent = 'ERROR';
+            apiStatus.style.color = '#ff4d4d';
+            showNotification('❌ API connection test failed!', 'error');
+            addLog('API test failed', 'error');
+        }
+    } catch (error) {
+        apiStatus.textContent = 'ERROR';
+        apiStatus.style.color = '#ff4d4d';
+        showNotification('❌ API connection test failed: ' + error.message, 'error');
+        addLog('API test failed: Network error', 'error');
+    }
+}
+
+async function updateAPIKey() {
+    const newKey = prompt('Enter new Football Data API key:', '');
+    if (newKey && newKey.trim() !== '') {
+        try {
+            const response = await fetch('/admin/update_setting', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    key: 'api_key',
+                    value: newKey.trim(),
+                    value_type: 'string'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('API key updated successfully!', 'success');
+                addLog('API key updated', 'info');
+            } else {
+                showNotification('Error: ' + (data.error || 'Failed to update API key'), 'error');
+            }
+        } catch (error) {
+            showNotification('Network error: ' + error.message, 'error');
+        }
+    }
+}
+
+function exportLogs() {
+    // In a real implementation, this would generate and download a log file
+    showNotification('Log export feature requires backend implementation.', 'info');
+}
+
+async function cleanupDatabase() {
+    if (!confirm('Clean up old database entries (logs older than 30 days, expired cache)?')) {
+        return;
+    }
+    
+    showNotification('Database cleanup feature requires backend implementation.', 'info');
+}
+
+// Log management
+function filterLogs(level) {
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filter log entries
+    const logs = document.querySelectorAll('.log-entry');
+    logs.forEach(log => {
+        if (level === 'all' || log.dataset.level === level) {
+            log.style.display = 'flex';
+        } else {
+            log.style.display = 'none';
+        }
+    });
+}
+
+async function refreshLogs() {
+    try {
+        const response = await fetch('/admin/get_logs?limit=50');
+        const data = await response.json();
+        
+        if (data.success) {
+            const logsContainer = document.getElementById('systemLogs');
+            logsContainer.innerHTML = '';
+            
+            data.logs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.dataset.level = log.level;
+                logEntry.innerHTML = `
+                    <span class="log-time">[${log.timestamp}]</span>
+                    <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+                    <span class="log-message">${log.message}</span>
+                `;
+                logsContainer.appendChild(logEntry);
+            });
+            
+            addLog('Logs refreshed', 'debug');
+        }
+    } catch (error) {
+        console.error('Failed to refresh logs:', error);
+    }
+}
+
+function autoRefreshLogs() {
+    const btn = document.getElementById('autoRefreshBtn');
+    
+    if (isAutoRefreshing) {
+        clearInterval(autoRefreshInterval);
+        isAutoRefreshing = false;
+        btn.innerHTML = '<i class="bi bi-play-circle"></i> Auto';
+        btn.title = 'Enable auto-refresh logs';
+        addLog('Auto-refresh logs disabled', 'info');
+    } else {
+        autoRefreshInterval = setInterval(refreshLogs, 10000); // Every 10 seconds
+        isAutoRefreshing = true;
+        btn.innerHTML = '<i class="bi bi-stop-circle"></i> Stop';
+        btn.title = 'Stop auto-refresh logs';
+        addLog('Auto-refresh logs enabled', 'info');
+    }
+}
+
+// Helper functions
+function addLog(message, level = 'info') {
+    const logsContainer = document.getElementById('systemLogs');
+    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+    
+    const logEntry = document.createElement('div');
+    logEntry.className = 'log-entry';
+    logEntry.dataset.level = level;
+    logEntry.innerHTML = `
+        <span class="log-time">${timestamp}</span>
+        <span class="log-level ${level}">${level.toUpperCase()}</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    logsContainer.insertBefore(logEntry, logsContainer.firstChild);
+    
+    // Keep only 50 logs
+    const entries = logsContainer.querySelectorAll('.log-entry');
+    if (entries.length > 50) {
+        logsContainer.removeChild(entries[entries.length - 1]);
+    }
+    
+    // Auto-scroll to top
+    logsContainer.scrollTop = 0;
+}
+
+function showNotification(message, type = 'info') {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.admin-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `admin-notification admin-notification-${type}`;
+    notification.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    // Add styles if not already added
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .admin-notification {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: #0a0f14;
+                border-left: 4px solid #00ffcc;
+                padding: 15px 20px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 10000;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            }
+            .admin-notification-success { border-color: #00ffcc; }
+            .admin-notification-warning { border-color: #ffcc00; }
+            .admin-notification-error { border-color: #ff4d4d; }
+            .admin-notification-info { border-color: #00aaff; }
+            .admin-notification i { font-size: 1.2rem; }
+            .admin-notification-success i { color: #00ffcc; }
+            .admin-notification-warning i { color: #ffcc00; }
+            .admin-notification-error i { color: #ff4d4d; }
+            .admin-notification-info i { color: #00aaff; }
+            .admin-notification button {
+                background: none;
+                border: none;
+                color: #ccc;
+                font-size: 1.5rem;
+                cursor: pointer;
+                margin-left: 10px;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+Shift+M to toggle maintenance
+    if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+        e.preventDefault();
+        document.getElementById('maintenanceToggle').click();
+    }
+    
+    // Ctrl+Shift+R to refresh cache
+    if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+        e.preventDefault();
+        refreshCache();
+    }
+    
+    // Ctrl+Shift+L to refresh logs
+    if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+        e.preventDefault();
+        refreshLogs();
+    }
+    
+    // Ctrl+Shift+S to save/backup
+    if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+        e.preventDefault();
+        backupSystem();
+    }
+});
+
+// Add initial log
+addLog('Admin panel loaded successfully', 'info');
+</script>
+
+{% endblock %}

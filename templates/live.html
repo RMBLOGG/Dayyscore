@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== LIVE SCORE STYLE ===== */
+.live-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.live-card {
+    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 14px;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    animation: fadeUp .4s ease;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.league-name {
+    font-size: 0.75rem;
+    opacity: .85;
+    margin-bottom: 10px;
+}
+
+.teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 40%;
+}
+
+.team img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.team span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.score {
+    font-size: 1.2rem;
+    font-weight: 800;
+    background: rgba(0,0,0,.4);
+    padding: 6px 12px;
+    border-radius: 12px;
+}
+
+.live-badge {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ff4d4d;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: red;
+    border-radius: 50%;
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: .4; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.no-live {
+    text-align: center;
+    opacity: .6;
+    margin-top: 30px;
+    font-size: 0.9rem;
+}
+</style>
+
+<h1 class="live-title">🔴 Live Score</h1>
+
+{% for m in matches %}
+<div class="live-card">
+    <div class="league-name">{{ m.competition.name }}</div>
+
+    <div class="teams">
+        <div class="team">
+            <img src="{{ m.homeTeam.crest }}">
+            <span>{{ m.homeTeam.name }}</span>
+        </div>
+
+        <div class="score">
+            {{ m.score.fullTime.home }} - {{ m.score.fullTime.away }}
+        </div>
+
+        <div class="team">
+            <img src="{{ m.awayTeam.crest }}">
+            <span>{{ m.awayTeam.name }}</span>
+        </div>
+    </div>
+
+    <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+    </div>
+</div>
+{% else %}
+<div class="no-live">
+    ⚽ Tidak ada pertandingan live saat ini
+</div>
+{% endfor %}
+
+<script>
+// animasi ringan biar terasa hidup
+document.querySelectorAll('.live-card').forEach(card => {
+    card.addEventListener('touchstart', () => {
+        card.style.transform = 'scale(0.98)';
+    });
+    card.addEventListener('touchend', () => {
+        card.style.transform = 'scale(1)';
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,1133 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ===== SETTINGS PAGE ===== */
+.settings-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #00ffcc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-card {
+    background: linear-gradient(145deg, #0a0f14, #131b23);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.settings-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #00ffcc;
+}
+
+.section-title i {
+    font-size: 1.4rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.setting-item:hover {
+    background: rgba(0,0,0,0.3);
+    border-left: 3px solid #00ffcc;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.setting-description {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #00ffcc;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.select-style {
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    min-width: 180px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.select-style:focus {
+    outline: none;
+    border-color: #00ffcc;
+    box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.1);
+}
+
+.theme-preview {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.theme-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-box:hover {
+    transform: scale(1.05);
+}
+
+.theme-box.active {
+    border-color: #00ffcc;
+    box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.3);
+}
+
+.theme-box::after {
+    content: "✓";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #00ffcc;
+    color: #000;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.theme-box.active::after {
+    opacity: 1;
+}
+
+/* Theme colors */
+.theme-dark { background: linear-gradient(145deg, #0a0f14, #131b23); }
+.theme-blue { background: linear-gradient(145deg, #0f2027, #203a43, #2c5364); }
+.theme-green { background: linear-gradient(145deg, #0f2714, #1a3a20, #265c2d); }
+.theme-purple { background: linear-gradient(145deg, #1a0f27, #2d1a3a, #3d2755); }
+.theme-red { background: linear-gradient(145deg, #270f0f, #3a1a1a, #5c2727); }
+
+.actions-container {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(255,255,255,0.1);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #00ffcc, #00a388);
+    border: none;
+    border-radius: 14px;
+    padding: 16px 32px;
+    color: #000;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.save-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.reset-btn {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 16px 32px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.reset-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.notification-badge {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+.real-time-badge {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff9999;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Database status indicator */
+.db-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+.db-connected {
+    background: rgba(0, 255, 204, 0.2);
+    color: #00ffcc;
+}
+
+.db-disconnected {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff6666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .toggle-switch {
+        align-self: flex-end;
+    }
+    
+    .select-style {
+        width: 100%;
+    }
+    
+    .theme-preview {
+        justify-content: center;
+    }
+}
+
+/* Settings notification */
+.settings-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: #0a0f14;
+    border-left: 4px solid #00ffcc;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+    display: none;
+}
+
+.settings-notification.show {
+    display: flex;
+}
+
+.settings-notification-success { border-color: #00ffcc; }
+.settings-notification-warning { border-color: #ffcc00; }
+.settings-notification-error { border-color: #ff4d4d; }
+.settings-notification-info { border-color: #00aaff; }
+
+.settings-notification i {
+    font-size: 1.2rem;
+}
+
+.settings-notification-success i { color: #00ffcc; }
+.settings-notification-warning i { color: #ffcc00; }
+.settings-notification-error i { color: #ff4d4d; }
+.settings-notification-info i { color: #00aaff; }
+
+.settings-notification button {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+</style>
+
+<div class="settings-title">
+    <i class="bi bi-gear"></i> Settings
+    {% if is_admin %}
+    <span class="notification-badge">Admin Mode</span>
+    {% endif %}
+    <span class="db-status {% if user_settings %}db-connected{% else %}db-disconnected{% endif %}" id="dbStatus">
+        <i class="bi bi-database"></i>
+        {% if user_settings %}DB Connected{% else %}Local Only{% endif %}
+    </span>
+</div>
+
+<div class="settings-card">
+    <!-- Database Status -->
+    <div class="settings-section" style="border-bottom: 2px solid rgba(0, 255, 204, 0.3);">
+        <div class="section-title">
+            <i class="bi bi-database"></i> Storage Status
+        </div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Settings Storage</div>
+                <div class="setting-description" id="storageInfo">
+                    {% if user_settings %}
+                    ✅ Settings are stored in database and synchronized across devices
+                    {% else %}
+                    ⚠️ Settings are stored locally in this browser only
+                    {% endif %}
+                </div>
+            </div>
+            <button class="select-style" onclick="syncSettings()" id="syncBtn" style="background: rgba(0, 255, 204, 0.2); color: #00ffcc; border-color: rgba(0, 255, 204, 0.3);">
+                <i class="bi bi-arrow-repeat"></i> Sync Now
+            </button>
+        </div>
+    </div>
+    
+    <!-- Display Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="bi bi-display"></i> Display Settings
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Dark Mode</div>
+                <div class="setting-description">Use dark theme interface for better eye comfort in low light</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle" 
+                       {% if user_settings.darkMode or system_settings.enable_dark_mode == 'true' %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Theme Color</div>
+                <div class="setting-description">Choose primary accent color for the application</div>
+            </div>
+            <div class="theme-preview">
+                <div class="theme-box theme-dark {% if (user_settings.theme or system_settings.theme or 'dark') == 'dark' %}active{% endif %}" 
+                     onclick="selectTheme('dark')" title="Dark Theme"></div>
+                <div class="theme-box theme-blue {% if (user_settings.theme or system_settings.theme) == 'blue' %}active{% endif %}" 
+                     onclick="selectTheme('blue')" title="Blue Theme"></div>
+                <div class="theme-box theme-green {% if (user_settings.theme or system_settings.theme) == 'green' %}active{% endif %}" 
+                     onclick="selectTheme('green')" title="Green Theme"></div>
+                <div class="theme-box theme-purple {% if (user_settings.theme or system_settings.theme) == 'purple' %}active{% endif %}" 
+                     onclick="selectTheme('purple')" title="Purple Theme"></div>
+                <div class="theme-box theme-red {% if (user_settings.theme or system_settings.theme) == 'red' %}active{% endif %}" 
+                     onclick="selectTheme('red')" title="Red Theme"></div>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Animation Effects</div>
+                <div class="setting-description">Enable smooth animations and transitions throughout the app</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="animationToggle" 
+                       {% if user_settings.animations != false and system_settings.enable_animations != 'false' %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Match Card Style</div>
+                <div class="setting-description">Choose how match cards are displayed</div>
+            </div>
+            <select class="select-style" id="cardStyleSelect">
+                <option value="modern" {% if (user_settings.cardStyle or 'modern') == 'modern' %}selected{% endif %}>Modern (Default)</option>
+                <option value="compact" {% if (user_settings.cardStyle or 'modern') == 'compact' %}selected{% endif %}>Compact</option>
+                <option value="detailed" {% if (user_settings.cardStyle or 'modern') == 'detailed' %}selected{% endif %}>Detailed</option>
+                <option value="minimal" {% if (user_settings.cardStyle or 'modern') == 'minimal' %}selected{% endif %}>Minimal</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Font Size</div>
+                <div class="setting-description">Adjust text size for better readability</div>
+            </div>
+            <select class="select-style" id="fontSizeSelect">
+                <option value="small" {% if (user_settings.fontSize or 'medium') == 'small' %}selected{% endif %}>Small</option>
+                <option value="medium" {% if (user_settings.fontSize or 'medium') == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="large" {% if (user_settings.fontSize or 'medium') == 'large' %}selected{% endif %}>Large</option>
+                <option value="xlarge" {% if (user_settings.fontSize or 'medium') == 'xlarge' %}selected{% endif %}>Extra Large</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Notification Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="bi bi-bell"></i> Notification Settings
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Match Reminders</div>
+                <div class="setting-description">Notify before your favorite team's matches start</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="reminderToggle" 
+                       {% if user_settings.reminders != false and system_settings.enable_notifications != 'false' %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Goal Alerts</div>
+                <div class="setting-description">Get instant notifications when goals are scored in live matches</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="goalAlertToggle" 
+                       {% if user_settings.goalAlerts or false %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Live Score Updates</div>
+                <div class="setting-description">Push notifications for live match updates (goals, cards, etc.)</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="liveUpdateToggle" 
+                       {% if user_settings.liveUpdates != false %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Reminder Time</div>
+                <div class="setting-description">How long before match start to send reminder</div>
+            </div>
+            <select class="select-style" id="reminderTimeSelect">
+                <option value="5" {% if (user_settings.reminderTime or '15') == '5' %}selected{% endif %}>5 minutes before</option>
+                <option value="15" {% if (user_settings.reminderTime or '15') == '15' %}selected{% endif %}>15 minutes before</option>
+                <option value="30" {% if (user_settings.reminderTime or '15') == '30' %}selected{% endif %}>30 minutes before</option>
+                <option value="60" {% if (user_settings.reminderTime or '15') == '60' %}selected{% endif %}>1 hour before</option>
+                <option value="120" {% if (user_settings.reminderTime or '15') == '120' %}selected{% endif %}>2 hours before</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Notification Sound</div>
+                <div class="setting-description">Play sound when receiving notifications</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="notificationSoundToggle" 
+                       {% if user_settings.notificationSound != false %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Data Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="bi bi-database"></i> Data Settings
+            <span class="real-time-badge">SERVER</span>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Auto-refresh Interval</div>
+                <div class="setting-description">How often to automatically update live scores and data</div>
+            </div>
+            <select class="select-style" id="refreshIntervalSelect">
+                <option value="15" {% if (user_settings.refreshInterval or system_settings.refresh_interval or '60') == '15' %}selected{% endif %}>15 seconds</option>
+                <option value="30" {% if (user_settings.refreshInterval or system_settings.refresh_interval or '60') == '30' %}selected{% endif %}>30 seconds</option>
+                <option value="60" {% if (user_settings.refreshInterval or system_settings.refresh_interval or '60') == '60' %}selected{% endif %}>1 minute</option>
+                <option value="120" {% if (user_settings.refreshInterval or system_settings.refresh_interval or '60') == '120' %}selected{% endif %}>2 minutes</option>
+                <option value="300" {% if (user_settings.refreshInterval or system_settings.refresh_interval or '60') == '300' %}selected{% endif %}>5 minutes</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Cache Duration</div>
+                <div class="setting-description">How long to cache match data before refreshing</div>
+            </div>
+            <select class="select-style" id="cacheDurationSelect">
+                <option value="5" {% if (user_settings.cacheDuration or system_settings.cache_duration or '300') == '5' %}selected{% endif %}>5 minutes</option>
+                <option value="15" {% if (user_settings.cacheDuration or system_settings.cache_duration or '300') == '15' %}selected{% endif %}>15 minutes</option>
+                <option value="30" {% if (user_settings.cacheDuration or system_settings.cache_duration or '300') == '30' %}selected{% endif %}>30 minutes</option>
+                <option value="60" {% if (user_settings.cacheDuration or system_settings.cache_duration or '300') == '60' %}selected{% endif %}>1 hour</option>
+                <option value="1440" {% if (user_settings.cacheDuration or system_settings.cache_duration or '300') == '1440' %}selected{% endif %}>24 hours</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Show Past Matches</div>
+                <div class="setting-description">Number of days to show past completed matches</div>
+            </div>
+            <select class="select-style" id="pastDaysSelect">
+                <option value="1" {% if (user_settings.pastDays or '3') == '1' %}selected{% endif %}>1 day</option>
+                <option value="3" {% if (user_settings.pastDays or '3') == '3' %}selected{% endif %}>3 days</option>
+                <option value="7" {% if (user_settings.pastDays or '3') == '7' %}selected{% endif %}>7 days</option>
+                <option value="14" {% if (user_settings.pastDays or '3') == '14' %}selected{% endif %}>14 days</option>
+                <option value="30" {% if (user_settings.pastDays or '3') == '30' %}selected{% endif %}>30 days</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Data Saving Mode</div>
+                <div class="setting-description">Reduce data usage by limiting image quality and updates</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="dataSavingToggle" 
+                       {% if user_settings.dataSaving or false %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Account Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="bi bi-person"></i> Account Settings
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Admin Mode</div>
+                <div class="setting-description">Enable administrator features and controls</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="adminModeToggle" {% if is_admin %}checked{% endif %} 
+                       {% if not session.get('user_id') %}disabled{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Favorite Team</div>
+                <div class="setting-description">Set your favorite team for personalized experience</div>
+            </div>
+            <select class="select-style" id="favoriteTeamSelect">
+                <option value="" {% if not user_settings.favoriteTeam %}selected{% endif %}>None</option>
+                <option value="arsenal" {% if user_settings.favoriteTeam == 'arsenal' %}selected{% endif %}>Arsenal</option>
+                <option value="manchester-united" {% if user_settings.favoriteTeam == 'manchester-united' %}selected{% endif %}>Manchester United</option>
+                <option value="liverpool" {% if user_settings.favoriteTeam == 'liverpool' %}selected{% endif %}>Liverpool</option>
+                <option value="barcelona" {% if user_settings.favoriteTeam == 'barcelona' %}selected{% endif %}>Barcelona</option>
+                <option value="real-madrid" {% if user_settings.favoriteTeam == 'real-madrid' %}selected{% endif %}>Real Madrid</option>
+                <option value="bayern" {% if user_settings.favoriteTeam == 'bayern' %}selected{% endif %}>Bayern Munich</option>
+                <option value="juventus" {% if user_settings.favoriteTeam == 'juventus' %}selected{% endif %}>Juventus</option>
+                <option value="ac-milan" {% if user_settings.favoriteTeam == 'ac-milan' %}selected{% endif %}>AC Milan</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Default League</div>
+                <div class="setting-description">Your preferred league to show first</div>
+            </div>
+            <select class="select-style" id="defaultLeagueSelect">
+                <option value="PL" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'PL' %}selected{% endif %}>Premier League</option>
+                <option value="PD" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'PD' %}selected{% endif %}>La Liga</option>
+                <option value="SA" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'SA' %}selected{% endif %}>Serie A</option>
+                <option value="BL1" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'BL1' %}selected{% endif %}>Bundesliga</option>
+                <option value="FL1" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'FL1' %}selected{% endif %}>Ligue 1</option>
+                <option value="CL" {% if (user_settings.defaultLeague or system_settings.default_league or 'PL') == 'CL' %}selected{% endif %}>Champions League</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Time Zone</div>
+                <div class="setting-description">Display times in your local timezone</div>
+            </div>
+            <select class="select-style" id="timezoneSelect">
+                <option value="WIB" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'WIB' %}selected{% endif %}>WIB (UTC+7)</option>
+                <option value="WITA" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'WITA' %}selected{% endif %}>WITA (UTC+8)</option>
+                <option value="WIT" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'WIT' %}selected{% endif %}>WIT (UTC+9)</option>
+                <option value="UTC" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'UTC' %}selected{% endif %}>UTC</option>
+                <option value="GMT" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'GMT' %}selected{% endif %}>GMT (UTC+0)</option>
+                <option value="EST" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'EST' %}selected{% endif %}>EST (UTC-5)</option>
+                <option value="PST" {% if (user_settings.timezone or system_settings.timezone or 'WIB') == 'PST' %}selected{% endif %}>PST (UTC-8)</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Privacy & Data Management -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="bi bi-shield"></i> Privacy & Data Management
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Analytics Tracking</div>
+                <div class="setting-description">Allow anonymous usage data collection to improve the app</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="analyticsToggle" 
+                       {% if user_settings.analytics != false and system_settings.enable_analytics != 'false' %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Personalized Ads</div>
+                <div class="setting-description">Show personalized advertisements based on your interests</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="personalizedAdsToggle" 
+                       {% if user_settings.personalizedAds or false %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Clear Browser Data</div>
+                <div class="setting-description">Remove all locally stored preferences and cached data</div>
+            </div>
+            <button class="select-style" onclick="clearLocalData()" style="background: rgba(255,77,77,0.2); color: #ff9999; border-color: rgba(255,77,77,0.3);">
+                <i class="bi bi-trash"></i> Clear Local Data
+            </button>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Export Settings</div>
+                <div class="setting-description">Download your settings as a backup file</div>
+            </div>
+            <button class="select-style" onclick="exportSettings()" style="background: rgba(0, 255, 204, 0.2); color: #00ffcc; border-color: rgba(0, 255, 204, 0.3);">
+                <i class="bi bi-download"></i> Export
+            </button>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="actions-container">
+        <button class="save-btn" onclick="saveSettings()" id="saveBtn">
+            <i class="bi bi-check-circle"></i> Save All Settings
+        </button>
+        
+        <button class="reset-btn" onclick="resetSettings()" id="resetBtn">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+        </button>
+    </div>
+</div>
+
+<!-- Notification Element -->
+<div class="settings-notification" id="notification">
+    <i class="bi bi-info-circle"></i>
+    <span id="notificationMessage"></span>
+    <button onclick="hideNotification()">&times;</button>
+</div>
+
+<script>
+// Global variables
+let isSaving = false;
+let currentTheme = '{{ user_settings.theme or system_settings.theme or "dark" }}';
+let userHasAccount = {% if session.get('user_id') %}true{% else %}false{% endif %};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply current theme
+    applyTheme(currentTheme);
+    
+    // Check URL for success parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success')) {
+        showNotification('Settings saved successfully!', 'success');
+        // Remove success parameter from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    // Update storage info
+    updateStorageInfo();
+});
+
+// Update storage information
+function updateStorageInfo() {
+    const storageInfo = document.getElementById('storageInfo');
+    const dbStatus = document.getElementById('dbStatus');
+    const syncBtn = document.getElementById('syncBtn');
+    
+    if (userHasAccount) {
+        storageInfo.innerHTML = '✅ Settings are stored in database and synchronized across devices';
+        dbStatus.className = 'db-status db-connected';
+        dbStatus.innerHTML = '<i class="bi bi-database"></i> DB Connected';
+        syncBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Sync Now';
+        syncBtn.disabled = false;
+    } else {
+        storageInfo.innerHTML = '⚠️ Settings are stored locally in this browser only. <a href="/admin/login" style="color: #00ffcc;">Login</a> to sync across devices.';
+        dbStatus.className = 'db-status db-disconnected';
+        dbStatus.innerHTML = '<i class="bi bi-database"></i> Local Only';
+        syncBtn.innerHTML = '<i class="bi bi-lock"></i> Login Required';
+        syncBtn.disabled = true;
+    }
+}
+
+// Sync settings with server
+async function syncSettings() {
+    if (!userHasAccount) {
+        showNotification('Please login to sync settings across devices.', 'warning');
+        return;
+    }
+    
+    const syncBtn = document.getElementById('syncBtn');
+    const originalText = syncBtn.innerHTML;
+    
+    try {
+        syncBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Syncing...';
+        syncBtn.disabled = true;
+        
+        // Get current settings from localStorage as backup
+        const localSettings = JSON.parse(localStorage.getItem('footballAppSettings') || '{}');
+        
+        // Send to server
+        const response = await fetch('/api/settings/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(localSettings)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Settings synchronized successfully!', 'success');
+            updateStorageInfo();
+        } else {
+            showNotification('Sync failed: ' + (data.error || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        console.error('Sync error:', error);
+        showNotification('Network error during sync.', 'error');
+    } finally {
+        syncBtn.innerHTML = originalText;
+        syncBtn.disabled = false;
+    }
+}
+
+// Save settings
+async function saveSettings() {
+    if (isSaving) return;
+    
+    isSaving = true;
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn.innerHTML;
+    
+    try {
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        // Collect all settings
+        const settings = {
+            darkMode: document.getElementById('darkModeToggle').checked,
+            animations: document.getElementById('animationToggle').checked,
+            reminders: document.getElementById('reminderToggle').checked,
+            goalAlerts: document.getElementById('goalAlertToggle').checked,
+            liveUpdates: document.getElementById('liveUpdateToggle').checked,
+            notificationSound: document.getElementById('notificationSoundToggle').checked,
+            dataSaving: document.getElementById('dataSavingToggle').checked,
+            analytics: document.getElementById('analyticsToggle').checked,
+            personalizedAds: document.getElementById('personalizedAdsToggle').checked,
+            adminMode: document.getElementById('adminModeToggle').checked,
+            cardStyle: document.getElementById('cardStyleSelect').value,
+            fontSize: document.getElementById('fontSizeSelect').value,
+            refreshInterval: document.getElementById('refreshIntervalSelect').value,
+            cacheDuration: document.getElementById('cacheDurationSelect').value,
+            pastDays: document.getElementById('pastDaysSelect').value,
+            reminderTime: document.getElementById('reminderTimeSelect').value,
+            favoriteTeam: document.getElementById('favoriteTeamSelect').value,
+            defaultLeague: document.getElementById('defaultLeagueSelect').value,
+            timezone: document.getElementById('timezoneSelect').value,
+            theme: currentTheme,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        // Save to localStorage as backup
+        localStorage.setItem('footballAppSettings', JSON.stringify(settings));
+        
+        // If user has account, save to server
+        if (userHasAccount) {
+            const response = await fetch('/api/settings/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('Settings saved to server!', 'success');
+            } else {
+                showNotification('Saved locally. Server error: ' + (data.error || 'Unknown'), 'warning');
+            }
+        } else {
+            showNotification('Settings saved locally. Login to sync across devices.', 'info');
+        }
+        
+        // Apply theme immediately
+        applyTheme(settings.theme);
+        
+        // Update admin mode in localStorage
+        localStorage.setItem('isAdmin', settings.adminMode.toString());
+        
+        console.log('Settings saved:', settings);
+        
+    } catch (error) {
+        console.error('Save error:', error);
+        showNotification('Error saving settings: ' + error.message, 'error');
+    } finally {
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+        isSaving = false;
+    }
+}
+
+// Reset to default
+function resetSettings() {
+    if (!confirm('Are you sure you want to reset all settings to default? This cannot be undone.')) {
+        return;
+    }
+    
+    const resetBtn = document.getElementById('resetBtn');
+    const originalText = resetBtn.innerHTML;
+    
+    try {
+        resetBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Resetting...';
+        resetBtn.disabled = true;
+        
+        // Reset all form elements to defaults
+        document.getElementById('darkModeToggle').checked = true;
+        document.getElementById('animationToggle').checked = true;
+        document.getElementById('reminderToggle').checked = true;
+        document.getElementById('goalAlertToggle').checked = false;
+        document.getElementById('liveUpdateToggle').checked = true;
+        document.getElementById('notificationSoundToggle').checked = true;
+        document.getElementById('dataSavingToggle').checked = false;
+        document.getElementById('analyticsToggle').checked = true;
+        document.getElementById('personalizedAdsToggle').checked = false;
+        document.getElementById('adminModeToggle').checked = {% if is_admin %}true{% else %}false{% endif %};
+        
+        document.getElementById('cardStyleSelect').value = 'modern';
+        document.getElementById('fontSizeSelect').value = 'medium';
+        document.getElementById('refreshIntervalSelect').value = '60';
+        document.getElementById('cacheDurationSelect').value = '300';
+        document.getElementById('pastDaysSelect').value = '3';
+        document.getElementById('reminderTimeSelect').value = '15';
+        document.getElementById('favoriteTeamSelect').value = '';
+        document.getElementById('defaultLeagueSelect').value = 'PL';
+        document.getElementById('timezoneSelect').value = 'WIB';
+        
+        // Reset theme
+        selectTheme('dark', false);
+        applyTheme('dark');
+        
+        // Clear localStorage
+        localStorage.removeItem('footballAppSettings');
+        
+        // If user has account, also reset server settings
+        if (userHasAccount) {
+            // This would require a separate endpoint
+            showNotification('Local settings reset. Server settings unchanged.', 'info');
+        } else {
+            showNotification('Settings reset to defaults.', 'info');
+        }
+        
+    } finally {
+        resetBtn.innerHTML = originalText;
+        resetBtn.disabled = false;
+    }
+}
+
+// Theme selection
+function selectTheme(theme, save = true) {
+    // Update theme boxes
+    document.querySelectorAll('.theme-box').forEach(box => {
+        box.classList.remove('active');
+    });
+    
+    event.target.classList.add('active');
+    currentTheme = theme;
+    
+    // Apply theme visually
+    applyTheme(theme);
+}
+
+// Apply theme to page
+function applyTheme(theme) {
+    const root = document.documentElement;
+    
+    switch(theme) {
+        case 'blue':
+            root.style.setProperty('--accent', '#00aaff');
+            break;
+        case 'green':
+            root.style.setProperty('--accent', '#00cc88');
+            break;
+        case 'purple':
+            root.style.setProperty('--accent', '#aa66ff');
+            break;
+        case 'red':
+            root.style.setProperty('--accent', '#ff6666');
+            break;
+        default:
+            root.style.setProperty('--accent', '#00ffcc');
+    }
+    
+    // Update save button gradient
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.style.background = `linear-gradient(135deg, var(--accent), ${getDarkerColor(getComputedStyle(root).getPropertyValue('--accent'))})`;
+    }
+}
+
+// Helper function to get darker color
+function getDarkerColor(color) {
+    // Simple darkening for gradient
+    if (color.includes('#')) {
+        // HEX color
+        return color + 'CC'; // Add alpha
+    } else if (color.includes('rgb')) {
+        // RGB color
+        return color.replace(')', ', 0.8)').replace('rgb', 'rgba');
+    }
+    return color;
+}
+
+// Clear local data
+function clearLocalData() {
+    if (confirm('Clear all locally stored data including preferences and cache?')) {
+        localStorage.clear();
+        showNotification('Local data cleared. Page will reload.', 'warning');
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    }
+}
+
+// Export settings
+function exportSettings() {
+    const settings = JSON.parse(localStorage.getItem('footballAppSettings') || '{}');
+    
+    if (Object.keys(settings).length === 0) {
+        showNotification('No settings to export.', 'info');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(settings, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `football-app-settings-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('Settings exported successfully!', 'success');
+}
+
+// Notification functions
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    const messageElement = document.getElementById('notificationMessage');
+    const icon = notification.querySelector('i');
+    
+    // Set message and type
+    messageElement.textContent = message;
+    notification.className = `settings-notification settings-notification-${type} show`;
+    
+    // Set icon based on type
+    switch(type) {
+        case 'success':
+            icon.className = 'bi bi-check-circle';
+            break;
+        case 'warning':
+            icon.className = 'bi bi-exclamation-triangle';
+            break;
+        case 'error':
+            icon.className = 'bi bi-x-circle';
+            break;
+        default:
+            icon.className = 'bi bi-info-circle';
+    }
+    
+    // Auto-hide after 5 seconds
+    setTimeout(hideNotification, 5000);
+}
+
+function hideNotification() {
+    const notification = document.getElementById('notification');
+    notification.classList.remove('show');
+}
+
+// Admin mode toggle handler
+document.getElementById('adminModeToggle').addEventListener('change', function() {
+    if (this.checked && !userHasAccount) {
+        showNotification('Please login to enable admin mode.', 'warning');
+        this.checked = false;
+    }
+});
+
+// Auto-save on some changes (optional)
+document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', function() {
+        // Optional: Auto-save important settings
+        if (this.id === 'refreshIntervalSelect' || this.id === 'cacheDurationSelect') {
+            showNotification('Change will take effect on next refresh.', 'info');
+        }
+    });
+});
+
+// Check for saved theme and apply on load
+window.addEventListener('load', function() {
+    const savedSettings = JSON.parse(localStorage.getItem('footballAppSettings') || '{}');
+    if (savedSettings.theme) {
+        applyTheme(savedSettings.theme);
+    }
+});
+</script>
+
+{% endblock %}

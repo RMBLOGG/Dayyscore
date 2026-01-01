@@ -1,1 +1,256 @@
+{% extends "base.html" %}
+{% block content %}
 
+<style>
+:root {
+    --bg: #000;
+    --card: #0a0a0a;
+    --border: rgba(255,255,255,.08);
+    --accent: #00ffcc;
+}
+
+h1 {
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+/* SEARCH (FIX OVERFLOW) */
+.search-box {
+    margin-bottom: 16px;
+}
+.search-box input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    outline: none;
+    background: var(--card);
+    color: #fff;
+    font-size: .85rem;
+}
+
+/* LEAGUE */
+.league-box {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border);
+}
+
+.league-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.league-header img {
+    width: 26px;
+}
+
+.league-header span {
+    font-weight: 800;
+    font-size: .9rem;
+    flex: 1;
+}
+
+.toggle {
+    transition: .3s;
+}
+
+.league-box.collapsed .toggle {
+    transform: rotate(-90deg);
+}
+
+.matches {
+    margin-top: 14px;
+}
+
+.league-box.collapsed .matches {
+    display: none;
+}
+
+/* MATCH */
+.match-card {
+    background: #050505;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 42%;
+    font-size: .75rem;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.team span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team img {
+    width: 24px;
+}
+
+.vs {
+    font-size: .7rem;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,#00ffcc,#00c9a7);
+    color: #000;
+}
+
+.time, .countdown, .predict {
+    text-align: center;
+    font-size: .65rem;
+    margin-top: 4px;
+}
+
+.countdown {
+    color: #aaa;
+}
+
+.predict {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* REMINDER */
+.reminder {
+    margin-top: 6px;
+    font-size: .65rem;
+    text-align: center;
+    color: #ffd166;
+    cursor: pointer;
+}
+.reminder.active {
+    color: #00ffcc;
+}
+</style>
+
+<h1>Upcoming Matches</h1>
+
+<div class="search-box">
+    <input id="search" placeholder="Cari klub atau liga...">
+</div>
+
+{% for group in grouped_matches %}
+<div class="league-box" data-league="{{ group.competition.name|lower }}">
+
+    <div class="league-header" onclick="toggleLeague(this)">
+        {% if group.competition.emblem %}
+        <img src="{{ group.competition.emblem }}">
+        {% endif %}
+        <span>{{ group.competition.name }}</span>
+        <div class="toggle">▾</div>
+    </div>
+
+    <div class="matches">
+        {% for m in group.matches %}
+        <div class="match-card"
+             data-search="{{ m.homeTeam.name|lower }} {{ m.awayTeam.name|lower }} {{ group.competition.name|lower }}"
+             data-time="{{ m.utcDate }}">
+
+            <div class="teams">
+                <div class="team">
+                    <img src="{{ m.homeTeam.crest }}">
+                    <span>{{ m.homeTeam.name }}</span>
+                </div>
+
+                <div class="vs">{{ m.utcDate|datetimeformat('%H:%M') }}</div>
+
+                <div class="team" style="justify-content:flex-end">
+                    <span>{{ m.awayTeam.name }}</span>
+                    <img src="{{ m.awayTeam.crest }}">
+                </div>
+            </div>
+
+            <div class="time"></div>
+            <div class="countdown"></div>
+            <div class="predict"></div>
+
+            <div class="reminder" onclick="toggleReminder(this)">
+                🔔 Set Reminder
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<script>
+// COLLAPSE
+function toggleLeague(el) {
+    el.parentElement.classList.toggle("collapsed");
+}
+
+// TIME + COUNTDOWN + PREDICT
+function updateAll() {
+    document.querySelectorAll(".match-card").forEach(card => {
+        const t = new Date(card.dataset.time);
+        const now = new Date();
+        const diff = t - now;
+
+        card.querySelector(".time").innerText =
+            t.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+        if (diff <= 0) {
+            card.querySelector(".countdown").innerText = "Kick-off";
+        } else {
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            card.querySelector(".countdown").innerText = `⏳ ${h}j ${m}m lagi`;
+        }
+
+        // SIMPLE SCORE PREDICTION
+        const home = card.querySelectorAll(".team span")[0].innerText.length % 3;
+        const away = card.querySelectorAll(".team span")[1].innerText.length % 3;
+        card.querySelector(".predict").innerText = `Prediksi: ${home} - ${away}`;
+    });
+}
+updateAll();
+setInterval(updateAll, 60000);
+
+// SEARCH FIX (NO OVERFLOW)
+document.getElementById("search").addEventListener("input", function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll(".league-box").forEach(box => {
+        let show = false;
+        box.querySelectorAll(".match-card").forEach(card => {
+            if (card.dataset.search.includes(q)) {
+                card.style.display = "";
+                show = true;
+            } else {
+                card.style.display = "none";
+            }
+        });
+        box.style.display = show ? "" : "none";
+    });
+});
+
+// REMINDER
+function toggleReminder(el) {
+    el.classList.toggle("active");
+    el.innerText = el.classList.contains("active")
+        ? "🔔 Reminder Aktif"
+        : "🔔 Set Reminder";
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if not match %}
+<div class="detail-card">
+    <h2>⚠️ Detail pertandingan tidak tersedia</h2>
+    <p>
+        Data detail match ini tidak tersedia di plan API saat ini
+        atau pertandingan sudah tidak bisa diakses.
+    </p>
+    <a href="/" style="color:#38bdf8;">⬅ Kembali</a>
+</div>
+
+{% else %}
+
+<div class="detail-card">
+    <div class="league">{{ match.competition.name }}</div>
+
+    <div class="detail-teams">
+        <div class="team">
+            <img src="{{ match.homeTeam.crest }}" class="logo-lg">
+            <h3>{{ match.homeTeam.name }}</h3>
+        </div>
+
+        <div class="detail-score">
+            <div class="score-lg">
+                {{ match.score.fullTime.home }} - {{ match.score.fullTime.away }}
+            </div>
+            <div class="status">{{ match.status }}</div>
+            <div class="time">{{ match.utcDate }}</div>
+        </div>
+
+        <div class="team">
+            <img src="{{ match.awayTeam.crest }}" class="logo-lg">
+            <h3>{{ match.awayTeam.name }}</h3>
+        </div>
+    </div>
+
+    {% if match.venue %}
+    <div class="venue">
+        🏟 Venue: {{ match.venue }}
+    </div>
+    {% endif %}
+</div>
+
+{% endif %}
+
+{% endblock %}
