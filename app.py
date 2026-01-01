@@ -1435,7 +1435,7 @@ def init_database():
         # Initialize default settings
         default_settings = [
             ('maintenance_mode', 'false', 'boolean', 'Enable maintenance mode for all users', 'maintenance'),
-            ('api_key', os.environ.get("FOOTBALL_API_KEY", ""), 'string', 'Football Data API Key', 'api'),
+            ('api_key', os.environ.get("FOOTBALL_API_KEY", "450de9a377b74884a6cc15b28f40f5bc"), 'string', 'Football Data API Key', 'api'),
             ('api_rate_limit', '100', 'integer', 'Daily API call limit', 'api'),
             ('refresh_interval', '60', 'integer', 'Auto-refresh interval in seconds', 'display'),
             ('cache_duration', '300', 'integer', 'Cache duration in seconds', 'system'),
